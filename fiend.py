@@ -31,7 +31,7 @@ class Fiend(object):
         self.deviceOs = deviceOs
         self.deviceId = deviceId
 
-        self.http = httplib2.Http();
+        self._http = httplib2.Http();
 
         self._gamesData = {}
 
@@ -53,14 +53,13 @@ class Fiend(object):
             'get_current_user':    'true'
         }
 
-        games = etree.fromstring(self.serverGet('games', params))
+        games = etree.fromstring(self._serverGet('games', params))
 
         for game in games:
             pass
 
-    # Internal methods
-    def serverGet(self, call, params):
-        url = self.makeUrl(call, params)
+    def _serverGet(self, call, params):
+        url = self._makeUrl(call, params)
         headers = {
             'User-Agent':    USER_AGENT,
             'Content-Type':  'application/xml',
@@ -72,12 +71,12 @@ class Fiend(object):
             'Pragma':        'no-cache'
         }
 
-        response, content = self.http.request(url, headers=headers)
-
         # TODO: Check response to make sure all is well
+        response, content = self._http.request(url, headers=headers)
+
         return content
 
-    def makeUrl(self, call, params):
+    def _makeUrl(self, call, params):
         url = WWF_URL + call + '?'
         url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
         return url
