@@ -22,6 +22,7 @@ import xml.etree.ElementTree as etree
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
 DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
+WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
 class Fiend(object):
     def __init__(self, authorization, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
@@ -44,8 +45,7 @@ class Fiend(object):
 
     def refreshGamesData(self):
         params = {'game_type': 'WordGame', 'include_invitations': 'true', 'games_since': '1970-0-1T0:0:0-00:00', 'moves_since': '0', 'chat_messages_since': '0', 'get_current_user': 'true'}
-        data = self.serverGet('games', params)
-        games = etree.fromstring(data)
+        games = etree.fromstring(self.serverGet('games', params))
 
         for game in games:
             pass
@@ -60,7 +60,6 @@ class Fiend(object):
         return content
 
     def makeUrl(self, call, params):
-        WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
         url = WWF_URL + call + '?'
         url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
         return url
