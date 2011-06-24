@@ -19,17 +19,22 @@ httplib2.debuglevel = 1
 
 import xml.etree.ElementTree as etree
 
+import base64
+
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
 DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
 class Fiend(object):
-    def __init__(self, authorization, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
-        self.authorization = authorization
+    def __init__(self, login, magic, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
+        self.login = login
+        self.magic = magic
         self.userAgent = userAgent
         self.deviceOs = deviceOs
         self.deviceId = deviceId
+
+        self.authorization = self._makeAuthorization(self.login, self.magic)
 
         self._http = httplib2.Http();
 
@@ -80,3 +85,6 @@ class Fiend(object):
         url = WWF_URL + call + '?'
         url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
         return url
+
+    def _makeAuthorization(self, login, magic):
+        return base64.b64encode(login + ':' + magic)
