@@ -63,7 +63,7 @@ class Fiend(object):
         games = etree.fromstring(self._serverGet('games', params))
 
         for game in games:
-            gameObj = self.Game(game)
+            gameObj = Fiend.Game(game)
             self._games[gameObj.id] = gameObj
 
     def _serverGet(self, call, params):
@@ -92,10 +92,20 @@ class Fiend(object):
     def _makeAuthorization(self, login, password):
         return base64.b64encode(login + ':' + password)
 
-    class Game:
+    class Game(object):
         def __init__(self, xmlElem):
             self.id = xmlElem.findtext('id')
+            self.moves = self._processMoves(xmlElem.find('moves'))
 
-    class Move:
+        def _processMoves(self, moves):
+            moveList = {}
+
+            for move in moves:
+                moveObj = Fiend.Move(move)
+                moveList[moveObj.id] = moveObj
+            
+            return moveList
+
+    class Move(object):
         def __init__(self, xmlElem):
-            pass
+            self.id = xmlElem.findtext('id')
