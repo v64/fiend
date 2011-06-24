@@ -44,7 +44,15 @@ class Fiend(object):
         return self._gamesData
 
     def refreshGamesData(self):
-        params = {'game_type': 'WordGame', 'include_invitations': 'true', 'games_since': '1970-0-1T0:0:0-00:00', 'moves_since': '0', 'chat_messages_since': '0', 'get_current_user': 'true'}
+        params = {
+            'game_type':           'WordGame',
+            'include_invitations': 'true',
+            'games_since':         '1970-0-1T0:0:0-00:00',
+            'moves_since':         '0',
+            'chat_messages_since': '0',
+            'get_current_user':    'true'
+        }
+
         games = etree.fromstring(self.serverGet('games', params))
 
         for game in games:
@@ -53,7 +61,17 @@ class Fiend(object):
     # Internal methods
     def serverGet(self, call, params):
         url = self.makeUrl(call, params)
-        headers = {'User-Agent': USER_AGENT, 'Content-Type': 'application/xml', 'Authorization': self.authorization, 'Device-OS': self.deviceOs, 'Device-Id': self.deviceId, 'Accept': 'text/xml', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+        headers = {
+            'User-Agent':    USER_AGENT,
+            'Content-Type':  'application/xml',
+            'Authorization': self.authorization,
+            'Device-OS':     self.deviceOs,
+            'Device-Id':     self.deviceId,
+            'Accept':        'text/xml',
+            'Cache-Control': 'no-cache',
+            'Pragma':        'no-cache'
+        }
+
         response, content = self.http.request(url, headers=headers)
 
         # TODO: Check response to make sure all is well
