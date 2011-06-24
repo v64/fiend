@@ -13,3 +13,49 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import httplib2
+httplib2.debuglevel = 1
+
+import xml.etree.ElementTree as etree
+
+USER_AGENT = 'WordsWithFriendsAndroid/3.51'
+DEVICE_OS = '2.3.3'
+DEVICE_ID = 'ADR6300'
+
+class Fiend:
+    def __init__(self, authorization, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
+        self.authorization = authorization
+        self.userAgent = userAgent
+        self.deviceOs = deviceOs
+        self.deviceId = deviceId
+
+        self.http = httplib2.Http();
+
+    def getGames(self):
+        params = {'game_type': 'WordGame', 'include_invitations': 'true', 'games_since': '1970-0-1T0:0:0-00:00', 'moves_since': '0', 'chat_messages_since': '0', 'get_current_user': 'true'}
+        data = self.serverGet('games', params)
+        tree = etree.parse(data)
+
+        gamesData = {}
+        games = tree.getroot()
+        for game in games:
+            pass
+
+        return gamesData
+
+    # Internal methods
+    def serverGet(self, call, params):
+        url = self.makeUrl(call, params)
+        headers = {'User-Agent': USER_AGENT, 'Content-Type': 'application/xml', 'Authorization': self.authorization, 'Device-OS': self.deviceOs, 'Device-Id': self.deviceId, 'Accept': 'text/xml', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+        response, content = self.http.request(url, headers=headers)
+
+        # TODO: Check response to make sure all is well
+        return content
+
+    def makeUrl(self, call, params):
+        WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
+        url = WWF_URL + call + '?'
+        url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
+        return url
+
