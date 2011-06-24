@@ -27,14 +27,14 @@ DEVICE_ID = 'ADR6300'
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
 class Fiend(object):
-    def __init__(self, login, magic, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
+    def __init__(self, login, password, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
         self.login = login
-        self.magic = magic
+        self.password = password
         self.userAgent = userAgent
         self.deviceOs = deviceOs
         self.deviceId = deviceId
 
-        self.authorization = self._makeAuthorization(self.login, self.magic)
+        self.authorization = self._makeAuthorization(self.login, self.password)
 
         self._http = httplib2.Http();
 
@@ -86,5 +86,5 @@ class Fiend(object):
         url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
         return url
 
-    def _makeAuthorization(self, login, magic):
-        return base64.b64encode(login + ':' + magic)
+    def _makeAuthorization(self, login, password):
+        return base64.b64encode(login + ':' + password)
