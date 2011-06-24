@@ -95,16 +95,31 @@ class Fiend(object):
     class Game(object):
         def __init__(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
-            self.moves = self._processMoves(xmlElem.find('moves'))
+            self.moves = []
+            self._processMoves(xmlElem.find('moves'))
+
+        def addMove(self, move):
+            if move.moveIndex is None:
+                move.moveIndex = len(self.moves) - 1
+            else:
+                # TODO: If moveObj.moveIndex is set, make sure that it makes sense
+                # to insert it into the game given its current state.
+                pass
+
+            self.moves.append(move)
+            return move
 
         def _processMoves(self, moves):
             moveList = []
 
+            # Order the moves before adding them to a Game. They should be
+            # ordered in the XML, but this isn't required.
             for move in moves:
                 moveObj = Fiend.Move(move)
                 moveList.insert(moveObj.moveIndex, moveObj)
-            
-            return moveList
+
+            for moveObj in moveList:
+                self.addMove(moveObj)
 
     class Move(object):
         def __init__(self, xmlElem):
