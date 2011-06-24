@@ -38,17 +38,17 @@ class Fiend(object):
 
         self._http = httplib2.Http();
 
-        self._gamesData = {}
+        self._games = {}
 
     @property
-    def gamesData(self):
+    def games(self):
         """Data about your games"""
-        if not self._gamesData:
-            self.refreshGamesData()
+        if not self._games:
+            self.refreshGames()
 
-        return self._gamesData
+        return self._games
 
-    def refreshGamesData(self):
+    def refreshGames(self):
         params = {
             'game_type':           'WordGame',
             'include_invitations': 'true',
@@ -61,7 +61,8 @@ class Fiend(object):
         games = etree.fromstring(self._serverGet('games', params))
 
         for game in games:
-            pass
+            gameObj = self.Game(game)
+            self._games[gameObj.id] = gameObj
 
     def _serverGet(self, call, params):
         url = self._makeUrl(call, params)
@@ -88,3 +89,11 @@ class Fiend(object):
 
     def _makeAuthorization(self, login, password):
         return base64.b64encode(login + ':' + password)
+
+    class Game:
+        def __init__(self, xmlElem):
+            self.id = xmlElem.findtext('id')
+
+    class Move:
+        def __init__(self, xmlElem):
+            pass
