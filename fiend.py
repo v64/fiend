@@ -23,7 +23,7 @@ USER_AGENT = 'WordsWithFriendsAndroid/3.51'
 DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
 
-class Fiend:
+class Fiend(object):
     def __init__(self, authorization, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
         self.authorization = authorization
         self.userAgent = userAgent
@@ -32,17 +32,23 @@ class Fiend:
 
         self.http = httplib2.Http();
 
-    def getGames(self):
+        self._gamesData = {}
+
+    @property
+    def gamesData(self):
+        """Data about your games"""
+        if not self._gamesData:
+            self.refreshGamesData()
+
+        return self._gamesData
+
+    def refreshGamesData(self):
         params = {'game_type': 'WordGame', 'include_invitations': 'true', 'games_since': '1970-0-1T0:0:0-00:00', 'moves_since': '0', 'chat_messages_since': '0', 'get_current_user': 'true'}
         data = self.serverGet('games', params)
-        tree = etree.parse(data)
+        games = etree.fromstring(data)
 
-        gamesData = {}
-        games = tree.getroot()
         for game in games:
             pass
-
-        return gamesData
 
     # Internal methods
     def serverGet(self, call, params):
@@ -58,4 +64,3 @@ class Fiend:
         url = WWF_URL + call + '?'
         url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
         return url
-
