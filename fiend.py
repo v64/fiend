@@ -94,18 +94,25 @@ class Fiend(object):
 
     class Game(object):
         def __init__(self, xmlElem):
-            self.id = xmlElem.findtext('id')
+            self.id = int(xmlElem.findtext('id'))
             self.moves = self._processMoves(xmlElem.find('moves'))
 
         def _processMoves(self, moves):
-            moveList = {}
+            moveList = []
 
             for move in moves:
                 moveObj = Fiend.Move(move)
-                moveList[moveObj.id] = moveObj
+                moveList.insert(moveObj.moveIndex, moveObj)
             
             return moveList
 
     class Move(object):
         def __init__(self, xmlElem):
-            self.id = xmlElem.findtext('id')
+            self.id = int(xmlElem.findtext('id'))
+            self.gameId = int(xmlElem.findtext('game-id'))
+            self.userId = int(xmlElem.findtext('user-id'))
+            self.fromX = int(xmlElem.findtext('from-x'))
+            self.fromY = int(xmlElem.findtext('from-y'))
+            self.toX = int(xmlElem.findtext('to-x'))
+            self.toY = int(xmlElem.findtext('to-y'))
+            self.moveIndex = int(xmlElem.findtext('move-index'))
