@@ -49,6 +49,8 @@ class Fiend(object):
         return self._games
 
     def refreshGames(self):
+        self._games = {}
+
         params = {
             'game_type':           'WordGame',
             'include_invitations': 'true',
