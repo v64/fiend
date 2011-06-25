@@ -122,8 +122,25 @@ class Fiend(object):
 
     class Game(object):
         def __init__(self, xmlElem):
-            self.board = self._initBoard()
             self.id = int(xmlElem.findtext('id'))
+
+            if xmlElem.findtext('current-move-user-id'):
+                self.currentMoveUserId = int(xmlElem.findtext('current-move-user-id'))
+            else:
+                self.currentMoveUserId = 0
+
+            self.createdByUserId = int(xmlElem.findtext('created-by-user-id'))
+            self.chatSessionId = int(xmlElem.findtext('chat_session_id'))
+            self.isMatchmaking = str(xmlElem.findtext('is-matchmaking'))
+            self.wasMatchmaking = str(xmlElem.findtext('was-matchmaking'))
+            self.movesCount = int(xmlElem.findtext('moves-count'))
+            self.moveCount = int(xmlElem.findtext('move_count'))
+            self.randomSeed = int(xmlElem.findtext('random-seed'))
+            self.clientVersion = str(xmlElem.findtext('client-version'))
+            self.observers = str(xmlElem.findtext('observers'))
+            self.createdAt = str(xmlElem.findtext('created-at'))
+
+            self.board = self._initBoard()
             self.moves = []
             self._processMoves(xmlElem.find('moves'))
 
@@ -199,6 +216,9 @@ class Fiend(object):
             self.toY = int(xmlElem.findtext('to-y'))
             self.moveIndex = int(xmlElem.findtext('move-index'))
             self.text = str(xmlElem.findtext('text'))
+            self.createdAt = str(xmlElem.findtext('created-at'))
+            self.promoted = int(xmlElem.findtext('promoted'))
+            self.boardChecksum = int(xmlElem.findtext('board-checksum'))
 
         def textCodeToWord(self):
             # This signifies the turn was a pass
