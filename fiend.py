@@ -170,15 +170,23 @@ class Fiend(object):
 
             word = move.textCodeToWord()
 
-            i = 0
+            i = -1
             if move.fromX == move.toX:
                 for y in range(move.fromY, move.toY+1):
-                    self.board[move.fromX][y] = word[i:i+1]
                     i = i + 1
+
+                    if word[i:i+1] == '*':
+                        continue
+
+                    self.board[move.fromX][y] = word[i:i+1]
             else:
                 for x in range(move.fromX, move.toX+1):
-                    self.board[x][move.fromY] = word[i:i+1]
                     i = i + 1
+
+                    if word[i:i+1] == '*':
+                        continue
+
+                    self.board[x][move.fromY] = word[i:i+1]
 
     class Move(object):
         def __init__(self, xmlElem):
@@ -200,9 +208,14 @@ class Fiend(object):
             letterCodes = self.text[:-1].split(',')
 
             for letterCode in letterCodes:
-                try:
-                    word += LETTER_MAP[int(letterCode)]
-                except:
-                    word += '?'
+                if letterCode == '*':
+                    word += '*'
+                else:
+                    try:
+                        word += LETTER_MAP[int(letterCode)]
+                    except ValueError:
+                        # We have a letter, not a number, so this is
+                        # defining a blank.
+                        word += letterCode.upper()
 
             return word
