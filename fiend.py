@@ -122,6 +122,7 @@ class Fiend(object):
 
     class Game(object):
         def __init__(self, xmlElem):
+            self.board = self._initBoard()
             self.id = int(xmlElem.findtext('id'))
             self.moves = []
             self._processMoves(xmlElem.find('moves'))
@@ -135,7 +136,17 @@ class Fiend(object):
                 pass
 
             self.moves.append(move)
+            self._updateBoard(move)
             return move
+
+        def showBoard(self):
+            for y in range(15):
+                row = ''
+                for x in range(15):
+                    row += self.board[x][y]
+                print row
+
+            print "\n"
 
         def _processMoves(self, moves):
             moveList = []
@@ -148,6 +159,26 @@ class Fiend(object):
 
             for moveObj in moveList:
                 self.addMove(moveObj)
+
+        def _initBoard(self):
+            return [['-' for y in range(15)] for x in range(15)]
+
+        def _updateBoard(self, move):
+            # Out of bounds fromX is used to signify a pass, I think
+            if move.fromX > 14:
+                return
+
+            word = move.textCodeToWord()
+
+            i = 0
+            if move.fromX == move.toX:
+                for y in range(move.fromY, move.toY+1):
+                    self.board[move.fromX][y] = word[i:i+1]
+                    i = i + 1
+            else:
+                for x in range(move.fromX, move.toX+1):
+                    self.board[x][move.fromY] = word[i:i+1]
+                    i = i + 1
 
     class Move(object):
         def __init__(self, xmlElem):
@@ -162,6 +193,9 @@ class Fiend(object):
             self.text = str(xmlElem.findtext('text'))
 
         def textCodeToWord(self):
+            if self.text == '(null)':
+                return
+
             word = ''
             letterCodes = self.text[:-1].split(',')
 
@@ -169,6 +203,6 @@ class Fiend(object):
                 try:
                     word += LETTER_MAP[int(letterCode)]
                 except:
-                    word += '(' + letterCode + ')'
+                    word += '?'
 
             return word
