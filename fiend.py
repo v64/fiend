@@ -26,6 +26,10 @@ DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
+# Letter distribution:
+# A-9 B-2 C-2 D-5 E-13 F-2 G-3 H-4 I-8 J-1 K-1 L-4 M-2
+# N-5 O-8 P-2 Q-1 R-6  S-5 T-7 U-4 V-2 W-2 X-1 Y-2 Z-1
+# Blanks-2
 LETTER_MAP = ['', '',
               'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E',
               'E', 'E', 'E', 'E',
