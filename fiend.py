@@ -26,6 +26,35 @@ DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
+LETTER_MAP = ['', '',
+              'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e',
+              'e', 'e', 'e', 'e',
+              'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 
+              'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 
+              'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 
+              'n', 'n', 'n', 'n', 'n', 
+              'r', 'r', 'r', 'r', 'r', 'r', 
+              't', 't', 't', 't', 't', 't', 't', 
+              'd', 'd', 'd', 'd', 'd', 
+              'l', 'l', 'l', 'l', 
+              's', 's', 's', 's', 's', 
+              'u', 'u', 'u', 'u', 
+              'g', 'g', 'g', 
+              'b', 'b', 
+              'c', 'c', 
+              'f', 'f', 
+              'h', 'h', 'h', 'h', 
+              'm', 'm', 
+              'p', 'p', 
+              'v', 'v', 
+              'w', 'w', 
+              'y', 'y', 
+              'j', 
+              'k', 
+              'q', 
+              'x', 
+              'z'] 
+
 class Fiend(object):
     def __init__(self, login, password, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
         self.login = login
@@ -81,7 +110,6 @@ class Fiend(object):
 
         # TODO: Check response to make sure all is well
         response, content = self._http.request(url, headers=headers)
-
         return content
 
     def _makeUrl(self, call, params):
@@ -131,3 +159,16 @@ class Fiend(object):
             self.toX = int(xmlElem.findtext('to-x'))
             self.toY = int(xmlElem.findtext('to-y'))
             self.moveIndex = int(xmlElem.findtext('move-index'))
+            self.text = str(xmlElem.findtext('text'))
+
+        def textCodeToWord(self):
+            word = ''
+            letterCodes = self.text[:-1].split(',')
+
+            for letterCode in letterCodes:
+                try:
+                    word += LETTER_MAP[int(letterCode)]
+                except:
+                    word += '(' + letterCode + ')'
+
+            return word
