@@ -201,6 +201,7 @@ class Fiend(object):
             self.text = str(xmlElem.findtext('text'))
 
         def textCodeToWord(self):
+            # This signifies the turn was a pass
             if self.text == '(null)':
                 return
 
