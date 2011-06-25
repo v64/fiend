@@ -234,6 +234,8 @@ class Fiend(object):
 
             for letterCode in letterCodes:
                 if letterCode == '*':
+                    # A * indicates the intersection point of this word
+                    # and another word already on the board.
                     word += '*'
                 else:
                     try:
