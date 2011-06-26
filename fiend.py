@@ -20,9 +20,12 @@ import httplib2
 import xml.etree.ElementTree as etree
 import base64
 
+# Device data required in the headers.
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
 DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
+
+# Main URL for all server requests.
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
 # Letter distribution:
@@ -60,6 +63,14 @@ LETTER_MAP = ['', '',
 
 class Fiend(object):
     def __init__(self, login, password, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
+        """
+        Params:
+            login - Your Words with Friends login email address.
+            password - Your phone's device ID. For Android, this can be found in Settings > About phone > Status > MEID.
+            userAgent - The string sent in the User-Agent header.
+            deviceOs - The string set in the Device-OS header.
+            deviceId - The string set in the Device-ID header.
+        """
         self.login = login
         self.password = password
         self.userAgent = userAgent
@@ -74,13 +85,24 @@ class Fiend(object):
 
     @property
     def games(self):
-        """Data about your games"""
+        """
+        A dictionary of your games, with game IDs as the keys, and
+        Game objects as the values.
+
+        This property is lazy loaded. If you want to force a refresh, call
+        refreshGames().
+        """
         if not self._games:
             self.refreshGames()
 
         return self._games
 
     def refreshGames(self):
+        """
+        Makes a call to the server to retrieve a list of your games. It sets
+        the games property to be a dictionary, with game IDs as the keys, and 
+        Game objects as the values.
+        """
         self._games = {}
 
         params = {
@@ -148,6 +170,10 @@ class Fiend(object):
             self._processMoves(xmlElem.find('moves'))
 
         def addMove(self, move):
+            """
+            Takes a Move object as an argument. Adds the Move to the Game and updates
+            the Game's board.
+            """
             if move.moveIndex is None:
                 move.moveIndex = len(self.moves) - 1
             else:
@@ -160,6 +186,9 @@ class Fiend(object):
             return move
 
         def showBoard(self):
+            """
+            Displays a 15x15 grid of the game board.
+            """
             for y in range(15):
                 row = ''
                 for x in range(15):
@@ -224,6 +253,20 @@ class Fiend(object):
             self.boardChecksum = int(xmlElem.findtext('board-checksum'))
 
         def textCodeToWord(self):
+            """
+            A Move's text field is either a comma separated series of numbers, asterisks,
+            and letters, or the string '(null)'.
+            
+            The numbers correspond to letters as mapped out in LETTER_MAP.
+            
+            The asterisks signify a letter that's already on the board that this move
+            overlaps.
+            
+            The letters signify that a blank has been played and that letter
+            has been selected as its value.
+
+            If the text field equals '(null)', then the turn was a pass.
+            """
             # This signifies the turn was a pass
             if self.text == '(null)':
                 return
