@@ -215,13 +215,13 @@ class Fiend(object):
             self._updateLetterBag(move)
             return move
 
-        def _processMoves(self, moves):
+        def _processMoves(self, movesXml):
             moveList = []
 
             # Order the moves before adding them to a Game. They should be
             # ordered in the XML, but this isn't required.
-            for move in moves:
-                moveObj = Fiend.Move(move)
+            for moveXml in movesXml:
+                moveObj = Fiend.Move(self, moveXml)
                 moveList.insert(moveObj.moveIndex, moveObj)
 
             for moveObj in moveList:
@@ -265,7 +265,9 @@ class Fiend(object):
                         continue;
 
     class Move(object):
-        def __init__(self, xmlElem):
+        def __init__(self, game, xmlElem):
+            self.game = game
+
             self.id = int(xmlElem.findtext('id'))
             self.gameId = int(xmlElem.findtext('game-id'))
             self.userId = int(xmlElem.findtext('user-id'))
