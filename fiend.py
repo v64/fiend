@@ -165,9 +165,32 @@ class Fiend(object):
             self.observers = str(xmlElem.findtext('observers'))
             self.createdAt = str(xmlElem.findtext('created-at'))
 
+            self._letterBag = list(LETTER_MAP)
+
             self.board = self._initBoard()
             self.moves = []
             self._processMoves(xmlElem.find('moves'))
+
+        @property
+        def letterBag(self):
+            """
+            A list of letters not yet used in the game.
+            """
+            return filter(lambda a: a != '-', self._letterBag)
+
+        @property
+        def boardString(self):
+            """
+            Returns a 15x15 text grid of the game board.
+            """
+            board = '';
+            for y in range(15):
+                row = ''
+                for x in range(15):
+                    row += self.board[x][y]
+                board += row + "\n"
+
+            return board
 
         def addMove(self, move):
             """
@@ -183,19 +206,8 @@ class Fiend(object):
 
             self.moves.append(move)
             self._updateBoard(move)
+            self._updateLetterBag(move)
             return move
-
-        def showBoard(self):
-            """
-            Displays a 15x15 grid of the game board.
-            """
-            for y in range(15):
-                row = ''
-                for x in range(15):
-                    row += self.board[x][y]
-                print row
-
-            print "\n"
 
         def _processMoves(self, moves):
             moveList = []
@@ -222,7 +234,7 @@ class Fiend(object):
             i = -1
             if move.fromX == move.toX:
                 for y in range(move.fromY, move.toY+1):
-                    i = i + 1
+                    i += 1
 
                     if word[i:i+1] == '*':
                         continue
@@ -230,12 +242,23 @@ class Fiend(object):
                     self.board[move.fromX][y] = word[i:i+1]
             else:
                 for x in range(move.fromX, move.toX+1):
-                    i = i + 1
+                    i += 1
 
                     if word[i:i+1] == '*':
                         continue
 
                     self.board[x][move.fromY] = word[i:i+1]
+
+        def _updateLetterBag(self, move):
+            letterCodes = move.text[:-1].split(',')
+            for letterCode in letterCodes:
+                if letterCode == '*':
+                    continue;
+                else:
+                    try:
+                        self._letterBag[int(letterCode)] = '-'
+                    except ValueError:
+                        continue;
 
     class Move(object):
         def __init__(self, xmlElem):
