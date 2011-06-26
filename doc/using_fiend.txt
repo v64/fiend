@@ -5,6 +5,6 @@ from fiend import Fiend
 f = Fiend('your-email@example.com', 'your-phone-id')
 for id, game in f.games.iteritems():
     print id
-    print game.boardString, game.letterBag
+    print game.boardString, game.letterBag, "\n"
 
 On Android, your phone ID can be found in Settings > About phone > Status > MEID. I haven't looked at the iPhone version yet, so I'm not sure what ID to use in that case.
