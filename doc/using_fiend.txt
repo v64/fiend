@@ -3,7 +3,7 @@ Show the game boards for all your games:
 
 from fiend import Fiend
 f = Fiend('your-email@example.com', 'your-phone-id')
-for id, games in f.games.iteritems():
+for id, game in f.games.iteritems():
     print id
     game.showBoard()
 
