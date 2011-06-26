@@ -71,6 +71,7 @@ class Fiend(object):
             deviceOs - The string set in the Device-OS header.
             deviceId - The string set in the Device-ID header.
         """
+
         self.login = login
         self.password = password
         self.userAgent = userAgent
@@ -92,6 +93,7 @@ class Fiend(object):
         This property is lazy loaded. If you want to force a refresh, call
         refreshGames().
         """
+
         if not self._games:
             self.refreshGames()
 
@@ -103,6 +105,7 @@ class Fiend(object):
         the games property to be a dictionary, with game IDs as the keys, and 
         Game objects as the values.
         """
+
         self._games = {}
 
         params = {
@@ -176,6 +179,7 @@ class Fiend(object):
             """
             A list of letters not yet used in the game.
             """
+
             return filter(lambda a: a != '-', self._letterBag)
 
         @property
@@ -183,6 +187,7 @@ class Fiend(object):
             """
             Returns a 15x15 text grid of the game board.
             """
+
             board = '';
             for y in range(15):
                 row = ''
@@ -197,6 +202,7 @@ class Fiend(object):
             Takes a Move object as an argument. Adds the Move to the Game and updates
             the Game's board.
             """
+
             if move.moveIndex is None:
                 move.moveIndex = len(self.moves) - 1
             else:
@@ -290,6 +296,7 @@ class Fiend(object):
 
             If the text field equals '(null)', then the turn was a pass.
             """
+
             # This signifies the turn was a pass
             if self.text == '(null)':
                 return
