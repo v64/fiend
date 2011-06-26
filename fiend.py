@@ -235,25 +235,23 @@ class Fiend(object):
             if move.fromX > 14:
                 return
 
-            word = move.textCodeToWord()
-
             i = -1
             if move.fromX == move.toX:
                 for y in range(move.fromY, move.toY+1):
                     i += 1
 
-                    if word[i:i+1] == '*':
+                    if move.textWord[i:i+1] == '*':
                         continue
 
-                    self.board[move.fromX][y] = word[i:i+1]
+                    self.board[move.fromX][y] = move.textWord[i:i+1]
             else:
                 for x in range(move.fromX, move.toX+1):
                     i += 1
 
-                    if word[i:i+1] == '*':
+                    if move.textWord[i:i+1] == '*':
                         continue
 
-                    self.board[x][move.fromY] = word[i:i+1]
+                    self.board[x][move.fromY] = move.textWord[i:i+1]
 
         def _updateLetterBag(self, move):
             letterCodes = move.text[:-1].split(',')
@@ -281,7 +279,10 @@ class Fiend(object):
             self.promoted = int(xmlElem.findtext('promoted'))
             self.boardChecksum = int(xmlElem.findtext('board-checksum'))
 
-        def textCodeToWord(self):
+            self._textWord = None
+
+        @property
+        def textWord(self):
             """
             A Move's text field is either a comma separated series of numbers, asterisks,
             and letters, or the string '(null)'.
@@ -297,24 +298,27 @@ class Fiend(object):
             If the text field equals '(null)', then the turn was a pass.
             """
 
-            # This signifies the turn was a pass
-            if self.text == '(null)':
-                return
+            if self._textWord is None:
+                # This signifies the turn was a pass
+                if self.text == '(null)':
+                    return
 
-            word = ''
-            letterCodes = self.text[:-1].split(',')
+                word = ''
+                letterCodes = self.text[:-1].split(',')
 
-            for letterCode in letterCodes:
-                if letterCode == '*':
-                    # A * indicates the intersection point of this word
-                    # and another word already on the board.
-                    word += '*'
-                else:
-                    try:
-                        word += LETTER_MAP[int(letterCode)]
-                    except ValueError:
-                        # We have a letter, not a number, so this is
-                        # defining a blank.
-                        word += letterCode.upper()
+                for letterCode in letterCodes:
+                    if letterCode == '*':
+                        # A * indicates the intersection point of this word
+                        # and another word already on the board.
+                        word += '*'
+                    else:
+                        try:
+                            word += LETTER_MAP[int(letterCode)]
+                        except ValueError:
+                            # We have a letter, not a number, so this is
+                            # defining a blank.
+                            word += letterCode.upper()
 
-            return word
+                self._textWord = word
+
+            return self._textWord
