@@ -221,7 +221,7 @@ class Fiend(object):
             # Order the moves before adding them to a Game. They should be
             # ordered in the XML, but this isn't required.
             for moveXml in movesXml:
-                moveObj = Fiend.Move(self, moveXml)
+                moveObj = Fiend.Move(moveXml)
                 moveList.insert(moveObj.moveIndex, moveObj)
 
             for moveObj in moveList:
@@ -265,9 +265,7 @@ class Fiend(object):
                         continue;
 
     class Move(object):
-        def __init__(self, game, xmlElem):
-            self.game = game
-
+        def __init__(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
             self.gameId = int(xmlElem.findtext('game-id'))
             self.userId = int(xmlElem.findtext('user-id'))
