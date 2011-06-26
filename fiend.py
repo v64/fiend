@@ -117,10 +117,12 @@ class Fiend(object):
             'get_current_user':    'true'
         }
 
-        games = etree.fromstring(self._serverGet('games', params))
+        gamesXml = etree.fromstring(self._serverGet('games', params))
 
-        for game in games:
-            gameObj = Fiend.Game(game)
+        for gameXml in gamesXml:
+            gameObj = Fiend.Game()
+            gameObj.setWithXml(gameXml)
+            
             self._games[gameObj.id] = gameObj
 
     def _serverGet(self, call, params):
@@ -149,13 +151,30 @@ class Fiend(object):
         return base64.b64encode(login + ':' + password)
 
     class Game(object):
-        def __init__(self, xmlElem):
+        def __init__(self):
+            self.id = None
+            self.currentMoveUserId = None
+            self.createdByUserId = None
+            self.chatSessionId = None
+            self.isMatchmaking = None
+            self.wasMatchmaking = None
+            self.movesCount = None
+            self.moveCount = None
+            self.randomSeed = None
+            self.clientVersion = None
+            self.observers = None
+            self.createdAt = None
+
+            self._letterBag = list(LETTER_MAP)
+
+            self.board = self._initBoard()
+            self.moves = []
+
+        def setWithXml(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
 
             if xmlElem.findtext('current-move-user-id'):
                 self.currentMoveUserId = int(xmlElem.findtext('current-move-user-id'))
-            else:
-                self.currentMoveUserId = 0
 
             self.createdByUserId = int(xmlElem.findtext('created-by-user-id'))
             self.chatSessionId = int(xmlElem.findtext('chat_session_id'))
@@ -168,10 +187,6 @@ class Fiend(object):
             self.observers = str(xmlElem.findtext('observers'))
             self.createdAt = str(xmlElem.findtext('created-at'))
 
-            self._letterBag = list(LETTER_MAP)
-
-            self.board = self._initBoard()
-            self.moves = []
             self._processMoves(xmlElem.find('moves'))
 
         @property
@@ -221,7 +236,8 @@ class Fiend(object):
             # Order the moves before adding them to a Game. They should be
             # ordered in the XML, but this isn't required.
             for moveXml in movesXml:
-                moveObj = Fiend.Move(moveXml)
+                moveObj = Fiend.Move()
+                moveObj.setWithXml(moveXml)
                 moveList.insert(moveObj.moveIndex, moveObj)
 
             for moveObj in moveList:
@@ -287,7 +303,23 @@ class Fiend(object):
                         continue;
 
     class Move(object):
-        def __init__(self, xmlElem):
+        def __init__(self):
+            self.id = None
+            self.gameId = None
+            self.userId = None
+            self.fromX = None
+            self.fromY = None
+            self.toX = None
+            self.toY = None
+            self.moveIndex = None
+            self.text = None
+            self.createdAt = None
+            self.promoted = None
+            self.boardChecksum = None
+
+            self._textWord = None
+
+        def setWithXml(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
             self.gameId = int(xmlElem.findtext('game-id'))
             self.userId = int(xmlElem.findtext('user-id'))
@@ -300,8 +332,6 @@ class Fiend(object):
             self.createdAt = str(xmlElem.findtext('created-at'))
             self.promoted = int(xmlElem.findtext('promoted'))
             self.boardChecksum = int(xmlElem.findtext('board-checksum'))
-
-            self._textWord = None
 
         @property
         def textWord(self):
