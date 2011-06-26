@@ -17,10 +17,7 @@
 VERSION = '0.1'
 
 import httplib2
-httplib2.debuglevel = 1
-
 import xml.etree.ElementTree as etree
-
 import base64
 
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
