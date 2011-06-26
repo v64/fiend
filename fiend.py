@@ -235,6 +235,8 @@ class Fiend(object):
             if move.fromX > 14:
                 return
 
+            # TODO: Make sure this move makes sense, i.e. it doesn't overlap
+            # already existing words
             i = -1
             if move.fromX == move.toX:
                 for y in range(move.fromY, move.toY+1):
