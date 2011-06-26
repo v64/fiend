@@ -210,9 +210,9 @@ class Fiend(object):
                 # to insert it into the game given its current state.
                 pass
 
-            self.moves.append(move)
             self._updateBoard(move)
             self._updateLetterBag(move)
+            self.moves.append(move)
             return move
 
         def _processMoves(self, movesXml):
@@ -235,10 +235,18 @@ class Fiend(object):
             if move.fromX > 14:
                 return
 
-            # TODO: Make sure this move makes sense, i.e. it doesn't overlap
-            # already existing words
-            i = -1
             if move.fromX == move.toX:
+                i = -1
+                for y in range(move.fromY, move.toY+1):
+                    i += 1
+
+                    if move.textWord[i:i+1] == '*':
+                        continue
+
+                    if self.board[move.fromX][y] != '-':
+                        raise MoveError('Move illegally overlaps an existing move', move, self)
+
+                i = -1
                 for y in range(move.fromY, move.toY+1):
                     i += 1
 
@@ -246,7 +254,19 @@ class Fiend(object):
                         continue
 
                     self.board[move.fromX][y] = move.textWord[i:i+1]
+
             else:
+                i = -1
+                for x in range(move.fromX, move.toX+1):
+                    i += 1
+
+                    if move.textWord[i:i+1] == '*':
+                        continue
+
+                    if self.board[x][move.fromY] != '-':
+                        raise MoveError('Move illegally overlaps an existing move', move, self)
+
+                i = -1
                 for x in range(move.fromX, move.toX+1):
                     i += 1
 
@@ -324,3 +344,25 @@ class Fiend(object):
                 self._textWord = word
 
             return self._textWord
+
+    class Error(Exception):
+        """Base class for exceptions in this module."""
+        pass
+
+    class MoveError(Error):
+        """
+        Raised when an error occurs when adding a move to a board.
+
+        Params:
+            msg: Error message for the exception.
+            move: The move that caused the error.
+            game: The game that this move was trying to be added to.
+        """
+
+        def __init__(self, msg, move, game):
+            self.msg = msg
+            self.move = move
+            self.game = game
+
+        def __str__(self):
+            return repr(self.msg)
