@@ -78,7 +78,7 @@ class Fiend(object):
         self.deviceOs = deviceOs
         self.deviceId = deviceId
 
-        self.authorization = self._makeAuthorization(self.login, self.password)
+        self.authorization = base64.b64encode(self.login + ':' + self.password) 
 
         self._http = httplib2.Http();
 
@@ -146,9 +146,6 @@ class Fiend(object):
         url = WWF_URL + call + '?'
         url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
         return url
-
-    def _makeAuthorization(self, login, password):
-        return base64.b64encode(login + ':' + password)
 
     class Game(object):
         def __init__(self):
@@ -222,13 +219,13 @@ class Fiend(object):
                 move.moveIndex = len(self.moves) - 1
             else:
                 # TODO: If moveObj.moveIndex is set, make sure that it makes sense
-                # to insert it into the game given its current state.
+                # to insert it into the game given its current state. Otherwise,
+                # throw a MoveError
                 pass
 
             self._updateBoard(move)
             self._updateLetterBag(move)
             self.moves.append(move)
-            return move
 
         def _processMoves(self, movesXml):
             moveList = []
