@@ -19,3 +19,6 @@ I thank the authors of the following tools, which were invaluable in helping me 
 I also thank the Android development team for releasing a fine set of access and debugging tools for their platform.
 
 Finally, thanks to Zynga for developing Words with Friends. Since Hasbro hasn't prevented you from making your own version of Scrabble, I hope you'll afford me a similar courtesy.
+
+### Caveat coder
+This project is still young and not stable at all. None of the public methods or variables are set in stone, especially not anything starting with an underscore.
