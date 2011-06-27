@@ -444,8 +444,6 @@ class Fiend(object):
                 if code == '0' or code == '1':
                     self._blanks[int(code)] = letterCodes[i+1].upper()
 
-            print self._blanks
-
     class Error(Exception):
         """Base class for exceptions in this module."""
         pass
