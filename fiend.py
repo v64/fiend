@@ -222,17 +222,17 @@ class Fiend(object):
             """
 
             board = '';
+
             for y in range(15):
-                row = ''
                 for x in range(15):
                     if self.board[x][y] == -1:
-                        row += '-'
+                        board += '-'
                     elif self.board[x][y] == 0 or self.board[x][y] == 1:
-                        row += self._blanks[self.board[x][y]]
+                        board += self._blanks[self.board[x][y]]
                     else:
-                        row += LETTER_MAP[int(self.board[x][y])]
+                        board += LETTER_MAP[int(self.board[x][y])]
 
-                board += row + "\n"
+                board += "\n"
 
             return board
 
