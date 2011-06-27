@@ -277,7 +277,7 @@ class Fiend(object):
                         continue
 
                     if self.board[move.fromX][y] != '-':
-                        raise MoveError('Move illegally overlaps an existing move', move, self)
+                        raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
                 i = -1
                 for y in range(move.fromY, move.toY+1):
@@ -297,7 +297,7 @@ class Fiend(object):
                         continue
 
                     if self.board[x][move.fromY] != '-':
-                        raise MoveError('Move illegally overlaps an existing move', move, self)
+                        raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
                 i = -1
                 for x in range(move.fromX, move.toX+1):
