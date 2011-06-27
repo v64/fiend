@@ -182,6 +182,7 @@ class Fiend(object):
             self.observers = None
             self.createdAt = None
 
+            self._blanks = [None, None]
             self._letterBag = list(LETTER_MAP)
 
             self.board = self._initBoard()
@@ -224,7 +225,13 @@ class Fiend(object):
             for y in range(15):
                 row = ''
                 for x in range(15):
-                    row += self.board[x][y]
+                    if self.board[x][y] == -1:
+                        row += '-'
+                    elif self.board[x][y] == 0 or self.board[x][y] == 1:
+                        row += self._blanks[self.board[x][y]]
+                    else:
+                        row += LETTER_MAP[int(self.board[x][y])]
+
                 board += row + "\n"
 
             return board
@@ -261,7 +268,7 @@ class Fiend(object):
                 self.addMove(moveObj)
 
         def _initBoard(self):
-            return [['-' for y in range(15)] for x in range(15)]
+            return [[-1 for y in range(15)] for x in range(15)]
 
         def _updateBoard(self, move):
             # Out of bounds fromX is used to signify a pass, I think
@@ -273,40 +280,46 @@ class Fiend(object):
                 for y in range(move.fromY, move.toY+1):
                     i += 1
 
-                    if move.textWord[i:i+1] == '*':
+                    if move.textCodes[i] == '*':
                         continue
 
-                    if self.board[move.fromX][y] != '-':
+                    if self.board[move.fromX][y] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
                 i = -1
                 for y in range(move.fromY, move.toY+1):
                     i += 1
 
-                    if move.textWord[i:i+1] == '*':
+                    if move.textCodes[i] == '*':
                         continue
 
-                    self.board[move.fromX][y] = move.textWord[i:i+1]
+                    self.board[move.fromX][y] = move.textCodes[i]
+
+                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                        self._blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
             else:
                 i = -1
                 for x in range(move.fromX, move.toX+1):
                     i += 1
 
-                    if move.textWord[i:i+1] == '*':
+                    if move.textCodes[i] == '*':
                         continue
 
-                    if self.board[x][move.fromY] != '-':
+                    if self.board[x][move.fromY] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
                 i = -1
                 for x in range(move.fromX, move.toX+1):
                     i += 1
 
-                    if move.textWord[i:i+1] == '*':
+                    if move.textCodes[i] == '*':
                         continue
 
-                    self.board[x][move.fromY] = move.textWord[i:i+1]
+                    self.board[x][move.fromY] = move.textCodes[i]
+
+                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                        self._blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
         def _updateLetterBag(self, move):
             letterCodes = move.text[:-1].split(',')
@@ -335,6 +348,10 @@ class Fiend(object):
             self.boardChecksum = None
 
             self._textWord = None
+            self._textCodes = None
+
+            self._text = None
+            self._blanks = [None, None]
 
         def setWithXml(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
@@ -349,6 +366,35 @@ class Fiend(object):
             self.createdAt = str(xmlElem.findtext('created-at'))
             self.promoted = int(xmlElem.findtext('promoted'))
             self.boardChecksum = int(xmlElem.findtext('board-checksum'))
+
+        @property
+        def text(self):
+            return self._text
+
+        @text.setter
+        def text(self, value):
+            self._text = value
+
+            if self._text is not None:
+                self._setBlanks()
+
+        @property
+        def textCodes(self):
+            if self._textCodes is None:
+                self._textCodes = []
+
+                if self.text != '(null)':
+                    self._textCodes = []
+                    for code in self.text[:-1].split(','):
+                        if code == '*':
+                            self.textCodes.append('*')
+                        else:
+                            try:
+                                self._textCodes.append(int(code))
+                            except ValueError:
+                                continue
+
+            return self._textCodes
 
         @property
         def textWord(self):
@@ -391,6 +437,14 @@ class Fiend(object):
                 self._textWord = word
 
             return self._textWord
+
+        def _setBlanks(self):
+            letterCodes = self.text[:-1].split(',')
+            for i, code in enumerate(letterCodes):
+                if code == '0' or code == '1':
+                    self._blanks[int(code)] = letterCodes[i+1].upper()
+
+            print self._blanks
 
     class Error(Exception):
         """Base class for exceptions in this module."""
