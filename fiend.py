@@ -375,7 +375,7 @@ class Fiend(object):
         def text(self, value):
             self._text = value
 
-            if self._text is not None:
+            if self._text:
                 self._setBlanks()
 
         @property
