@@ -188,6 +188,7 @@ class Fiend(object):
             self._blanks = [None, None]
             self._letterBag = list(LETTER_MAP)
             self._randomSeed = None
+            self._random = None
 
             self.board = self._initBoard()
             self.moves = []
@@ -247,7 +248,8 @@ class Fiend(object):
         @randomSeed.setter
         def randomSeed(self, value):
             self._randomSeed = value
-            random.seed(value)
+            self._random = random.Random()
+            self._random.seed(self._randomSeed)
 
         def addMove(self, move):
             """
@@ -261,6 +263,10 @@ class Fiend(object):
                 move.moveIndex = nextMoveIndex
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
+
+            if move.moveIndex == 0:
+                # draw tiles for both players
+                pass
 
             newBoard = copy.deepcopy(self.board)
             numLettersPlayed, blanks = self._updateBoard(move, newBoard)
@@ -355,6 +361,20 @@ class Fiend(object):
                         self._letterBag[int(letterCode)] = '-'
                     except ValueError:
                         continue;
+
+        def _drawFromLetterBag(self, num):
+            output = []
+
+            for tile in range(0, num):
+                i = self._random.randrange(0, 104)
+
+                if self._letterBag[i] == '-':
+                    raise Fiend.GameError('Random number generator fail', self)
+
+                output.append(self._letterBag[i])
+                self._letterBag[i] = '-'
+
+            return output
 
         def _calculateBoardChecksum(self, board=None):
             """
@@ -509,6 +529,14 @@ class Fiend(object):
     class Error(Exception):
         """Base class for exceptions in this module."""
         pass
+
+    class GameError(Error):
+        def __init__(self, msg, game):
+            self.msg = msg
+            self.game = game
+
+        def __str__(self):
+            return repr(self.msg)
 
     class MoveError(Error):
         """
