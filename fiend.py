@@ -19,6 +19,7 @@ VERSION = '0.1'
 import httplib2
 import xml.etree.ElementTree as etree
 import base64
+import copy
 
 # Device data required in the headers.
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
@@ -250,9 +251,21 @@ class Fiend(object):
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
-            self._updateBoard(move)
+            newBoard = copy.deepcopy(self.board)
+            blanks = self._updateBoard(move, newBoard)
+            newBoardChecksum = self._calculateBoardChecksum(newBoard)
+            if move.boardChecksum is None:
+                move.boardChecksum = newBoardChecksum
+            elif move.boardChecksum != 0 and move.boardChecksum != newBoardChecksum:
+                raise Fiend.MoveError("Board checksum mismatch", move, self)
+
+            self.board = newBoard
+            for i in [0, 1]:
+                if blanks[i]:
+                    self._blanks[i] = blanks[i]
+
+            self.boardChecksum = newBoardChecksum
             self._updateLetterBag(move)
-            self.boardChecksum = self._calculateBoardChecksum()
             self.moves.append(move)
 
         def _processMoves(self, movesXml):
@@ -271,44 +284,48 @@ class Fiend(object):
         def _initBoard(self):
             return [[-1 for y in range(15)] for x in range(15)]
 
-        def _updateBoard(self, move):
+        def _updateBoard(self, move, board):
+            blanks = [None, None]
+
             # Out of bounds fromX is used to signify a pass, I think
             if move.fromX > 14:
-                return
+                return blanks
 
             if move.fromX == move.toX:
                 for i, y in enumerate(range(move.fromY, move.toY+1)):
                     if move.textCodes[i] == '*':
                         continue
 
-                    if self.board[move.fromX][y] != -1:
+                    if board[move.fromX][y] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
                 for i, y in enumerate(range(move.fromY, move.toY+1)):
                     if move.textCodes[i] == '*':
                         continue
 
-                    self.board[move.fromX][y] = move.textCodes[i]
+                    board[move.fromX][y] = move.textCodes[i]
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                        self._blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
             else:
                 for i, x in enumerate(range(move.fromX, move.toX+1)):
                     if move.textCodes[i] == '*':
                         continue
 
-                    if self.board[x][move.fromY] != -1:
+                    if board[x][move.fromY] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
                 for i, x in enumerate(range(move.fromX, move.toX+1)):
                     if move.textCodes[i] == '*':
                         continue
 
-                    self.board[x][move.fromY] = move.textCodes[i]
+                    board[x][move.fromY] = move.textCodes[i]
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                        self._blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+
+            return blanks
 
         def _updateLetterBag(self, move):
             letterCodes = move.text[:-1].split(',')
@@ -321,7 +338,7 @@ class Fiend(object):
                     except ValueError:
                         continue;
 
-        def _calculateBoardChecksum(self):
+        def _calculateBoardChecksum(self, board):
             """
             Calculates the board_checksum value for the board in its current state.
             Since addMove() calls this, you shouldn't need to call it yourself and
@@ -336,13 +353,13 @@ class Fiend(object):
 
             for y in range(15):
                 for x in range(15):
-                    if self.board[x][y] == -1:
+                    if board[x][y] == -1:
                         i ^= 1
                         k -= 1
-                    elif self.board[x][y] == 0:
+                    elif board[x][y] == 0:
                         i ^= (2 ** j)
                     else:
-                        i ^= self.board[x][y]
+                        i ^= board[x][y]
 
                     j += 1
                     if j == 32:
