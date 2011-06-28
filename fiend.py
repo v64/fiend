@@ -253,7 +253,7 @@ class Fiend(object):
 
             self._updateBoard(move)
             self._updateLetterBag(move)
-            self._updateBoardChecksum()
+            self.boardChecksum = self._calculateBoardChecksum()
             self.moves.append(move)
 
         def _processMoves(self, movesXml):
@@ -322,7 +322,7 @@ class Fiend(object):
                     except ValueError:
                         continue;
 
-        def _updateBoardChecksum(self):
+        def _calculateBoardChecksum(self):
             """
             Calculates the board_checksum value for the board in its current state.
             Since addMove() calls this, you shouldn't need to call it yourself and
@@ -354,7 +354,7 @@ class Fiend(object):
                 if (i ^ 2) % 2 == 0:
                     i -= 2
 
-            self.boardChecksum = i
+            return i
 
     class Move(object):
         def __init__(self):
