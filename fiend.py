@@ -266,6 +266,7 @@ class Fiend(object):
 
             self.boardChecksum = newBoardChecksum
             self._updateLetterBag(move)
+            move.game = self
             self.moves.append(move)
 
         def _processMoves(self, movesXml):
@@ -375,6 +376,7 @@ class Fiend(object):
     class Move(object):
         def __init__(self):
             self.id = None
+            self.game = None
             self.gameId = None
             self.userId = None
             self.fromX = None
