@@ -464,9 +464,9 @@ class Fiend(object):
 
         def _setBlanks(self):
             letterCodes = self.text[:-1].split(',')
-            for i, code in enumerate(letterCodes):
-                if code == '0' or code == '1':
-                    self._blanks[int(code)] = letterCodes[i+1].upper()
+            for i in ['0', '1']:
+                if i in letterCodes:
+                    self._blanks[int(i)] = letterCodes[letterCodes.index(i) + 1].upper()
 
     class Error(Exception):
         """Base class for exceptions in this module."""
