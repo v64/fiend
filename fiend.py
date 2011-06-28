@@ -349,7 +349,7 @@ class Fiend(object):
 
             if k % 2 != 0:
                 i *= -1
-                if (i^(2**j)) % 2 == 0:
+                if (i ^ 2) % 2 == 0:
                     i -= 2
 
             self.boardChecksum = i
