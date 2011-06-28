@@ -243,13 +243,12 @@ class Fiend(object):
             the Game's board.
             """
 
+            # moveIndex is 0-indexed
+            nextMoveIndex = len(self.moves)
             if move.moveIndex is None:
-                move.moveIndex = len(self.moves) - 1
-            else:
-                # TODO: If moveObj.moveIndex is set, make sure that it makes sense
-                # to insert it into the game given its current state. Otherwise,
-                # throw a MoveError
-                pass
+                move.moveIndex = nextMoveIndex
+            elif move.moveIndex != nextMoveIndex:
+                raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
             self._updateBoard(move)
             self._updateLetterBag(move)
