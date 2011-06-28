@@ -348,7 +348,7 @@ class Fiend(object):
                         j = 0
 
             if k % 2 != 0:
-                i *= -1
+                i = -i
                 if (i ^ 2) % 2 == 0:
                     i -= 2
 
