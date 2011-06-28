@@ -89,7 +89,7 @@ class Fiend(object):
             password - Your phone's device ID. For Android, this can be found in Settings > About phone > Status > MEID.
             userAgent - The string sent in the User-Agent header.
             deviceOs - The string set in the Device-OS header.
-            deviceId - The string set in the Device-ID header.
+            deviceId - The string set in the Device-Id header.
         """
 
         self.login = login
