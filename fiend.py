@@ -285,7 +285,7 @@ class Fiend(object):
         def _initBoard(self):
             return [[-1 for y in range(15)] for x in range(15)]
 
-        def _updateBoard(self, move, board):
+        def _updateBoard(self, move, board=self.board):
             blanks = [None, None]
 
             # Out of bounds fromX is used to signify a pass, I think
@@ -339,7 +339,7 @@ class Fiend(object):
                     except ValueError:
                         continue;
 
-        def _calculateBoardChecksum(self, board):
+        def _calculateBoardChecksum(self, board=self.board):
             """
             Calculates the board_checksum value for the board in its current state.
             Since addMove() calls this, you shouldn't need to call it yourself and
