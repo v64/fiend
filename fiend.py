@@ -181,6 +181,7 @@ class Fiend(object):
             self.clientVersion = None
             self.observers = None
             self.createdAt = None
+            self.boardChecksum = 0
 
             self._blanks = [None, None]
             self._letterBag = list(LETTER_MAP)
@@ -252,6 +253,7 @@ class Fiend(object):
 
             self._updateBoard(move)
             self._updateLetterBag(move)
+            self._calculateBoardChecksum(move)
             self.moves.append(move)
 
         def _processMoves(self, movesXml):
@@ -319,6 +321,38 @@ class Fiend(object):
                         self._letterBag[int(letterCode)] = '-'
                     except ValueError:
                         continue;
+
+        def _calculateBoardChecksum(self, move):
+            """
+            Calculates the board_checksum value for the board in its current state.
+
+            If anyone recognizes this as a known algorithm, let me know.
+            """
+
+            i = 0
+            j = 0
+            k = 225
+
+            for y in range(15):
+                for x in range(15):
+                    if self.board[x][y] == -1:
+                        i ^= 1
+                        k -= 1
+                    elif self.board[x][y] == 0:
+                        i ^= (2**j)
+                    else:
+                        i ^= self.board[x][y]
+
+                    j += 1
+                    if j == 32:
+                        j = 0
+
+            if k % 2 != 0:
+                i *= -1
+                if (i^(2**j)) % 2 == 0:
+                    i -= 2
+
+            self.boardChecksum = i
 
     class Move(object):
         def __init__(self):
