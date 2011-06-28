@@ -339,7 +339,7 @@ class Fiend(object):
                         i ^= 1
                         k -= 1
                     elif self.board[x][y] == 0:
-                        i ^= (2**j)
+                        i ^= (2 ** j)
                     else:
                         i ^= self.board[x][y]
 
