@@ -325,6 +325,8 @@ class Fiend(object):
         def _calculateBoardChecksum(self):
             """
             Calculates the board_checksum value for the board in its current state.
+            Since addMove() calls this, you shouldn't need to call it yourself and
+            can just rely on game.boardChecksum.
 
             If anyone recognizes this as a known algorithm, let me know.
             """
