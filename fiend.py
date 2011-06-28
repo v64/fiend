@@ -16,10 +16,11 @@
 
 VERSION = '0.1'
 
-import httplib2
-import xml.etree.ElementTree as etree
 import base64
 import copy
+import xml.etree.ElementTree as etree
+import httplib2
+import random
 
 # Device data required in the headers.
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
@@ -186,6 +187,7 @@ class Fiend(object):
 
             self._blanks = [None, None]
             self._letterBag = list(LETTER_MAP)
+            self._randomSeed = None
 
             self.board = self._initBoard()
             self.moves = []
@@ -238,6 +240,15 @@ class Fiend(object):
 
             return board
 
+        @property
+        def randomSeed(self):
+            return self._randomSeed
+
+        @randomSeed.setter
+        def randomSeed(self, value):
+            self._randomSeed = value
+            random.seed(value)
+
         def addMove(self, move):
             """
             Takes a Move object as an argument. Adds the Move to the Game and updates
@@ -252,7 +263,7 @@ class Fiend(object):
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
             newBoard = copy.deepcopy(self.board)
-            blanks = self._updateBoard(move, newBoard)
+            numLettersPlayed, blanks = self._updateBoard(move, newBoard)
             newBoardChecksum = self._calculateBoardChecksum(newBoard)
             if move.boardChecksum is None:
                 move.boardChecksum = newBoardChecksum
@@ -285,12 +296,16 @@ class Fiend(object):
         def _initBoard(self):
             return [[-1 for y in range(15)] for x in range(15)]
 
-        def _updateBoard(self, move, board=self.board):
+        def _updateBoard(self, move, board=None):
+            if board is None:
+                board = self.board
+
+            numLettersPlayed = 0
             blanks = [None, None]
 
             # Out of bounds fromX is used to signify a pass, I think
             if move.fromX > 14:
-                return blanks
+                return (numLettersPlayed, blanks)
 
             if move.fromX == move.toX:
                 for i, y in enumerate(range(move.fromY, move.toY+1)):
@@ -305,6 +320,7 @@ class Fiend(object):
                         continue
 
                     board[move.fromX][y] = move.textCodes[i]
+                    numLettersPlayed += 1
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
@@ -322,11 +338,12 @@ class Fiend(object):
                         continue
 
                     board[x][move.fromY] = move.textCodes[i]
+                    numLettersPlayed += 1
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
-            return blanks
+            return (numLettersPlayed, blanks)
 
         def _updateLetterBag(self, move):
             letterCodes = move.text[:-1].split(',')
@@ -339,7 +356,7 @@ class Fiend(object):
                     except ValueError:
                         continue;
 
-        def _calculateBoardChecksum(self, board=self.board):
+        def _calculateBoardChecksum(self, board=None):
             """
             Calculates the board_checksum value for the board in its current state.
             Since addMove() calls this, you shouldn't need to call it yourself and
@@ -347,6 +364,9 @@ class Fiend(object):
 
             If anyone recognizes this as a known algorithm, let me know.
             """
+
+            if board is None:
+                board = self.board
 
             i = 0
             j = 0
