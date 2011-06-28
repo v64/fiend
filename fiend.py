@@ -366,7 +366,7 @@ class Fiend(object):
             output = []
 
             for tile in range(0, num):
-                i = self._random.randrange(0, 104)
+                i = self._random.randint(0, 104)
 
                 if self._letterBag[i] == '-':
                     raise Fiend.GameError('Random number generator fail', self)
