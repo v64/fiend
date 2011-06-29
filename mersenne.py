@@ -78,14 +78,17 @@ class Mersenne(object):
         return y >> (32 - bits)
 
     def getInt(self, n=None):
+        return self._castToSigned(self.getLong(n))
+
+    def getLong(self, n=None):
         if n is None:
-            return self._castToSigned(self.rand(32))
+            return self.rand(32)
 
         if n <= 0:
             raise ValueError('n must be greater than 0')
 
         if (n & -n) == n:
-            return self._castToSigned(int((n * long(self.rand(31))) >> 31))
+            return int((n * long(self.rand(31))) >> 31)
 
         bits = self.nextRand(31)
         val = bits % n
@@ -93,4 +96,4 @@ class Mersenne(object):
             bits = self.rand(31)
             val = bits % n
 
-        return self._castToSigned(val)
+        return val
