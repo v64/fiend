@@ -5,6 +5,14 @@ Author: Jahn Veach &lt;v64@v64.net&gt;
 License: GPLv3  
 Website: https://github.com/v64/fiend  
 
+### Purpose
+Fiend gives you complete access to all the data related to your games, you and your opponents' moves, etc. Its primary purpose is to provide access to Words with Friends for users who can't use an already existing client. It's also designed for tracking statistics and other records in a way that no other client currently does.
+
+Obviously, there are a number of ways this module could be used to facilitate cheating. That being said: I absolutely **DO NOT** condone the use of this module for any purpose that gives you an unfair advantage in Words with Friends.
+
+### Caveat coder
+This project is still young and not stable at all. None of the public methods or variables are set in stone, especially not anything starting with an underscore.
+
 ### Acknowledgements
 I thank the authors of the following tools, which were invaluable in helping me write Fiend.
 
@@ -19,6 +27,3 @@ I thank the authors of the following tools, which were invaluable in helping me 
 I also thank the Android development team for releasing a fine set of access and debugging tools for their platform.
 
 Finally, thanks to Zynga for developing Words with Friends. Since Hasbro hasn't prevented you from making your own version of Scrabble, I hope you'll afford me a similar courtesy.
-
-### Caveat coder
-This project is still young and not stable at all. None of the public methods or variables are set in stone, especially not anything starting with an underscore.
