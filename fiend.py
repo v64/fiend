@@ -186,7 +186,7 @@ class Fiend(object):
             self.boardChecksum = 0
 
             self._blanks = [None, None]
-            self.letterBagCodes = [i for i in range(len(LETTER_MAP))]
+            self.letterBagCodes = [i for i in xrange(len(LETTER_MAP))]
             self._randomSeed = None
             self._random = None
 
@@ -231,8 +231,8 @@ class Fiend(object):
 
             board = '';
 
-            for y in range(15):
-                for x in range(15):
+            for y in xrange(15):
+                for x in xrange(15):
                     if self.board[x][y] == -1:
                         board += '-'
                     elif self.board[x][y] == 0 or self.board[x][y] == 1:
@@ -326,7 +326,7 @@ class Fiend(object):
                 self.addMove(moveObj)
 
         def _initBoard(self):
-            return [[-1 for y in range(15)] for x in range(15)]
+            return [[-1 for y in xrange(15)] for x in xrange(15)]
 
         def _updateBoard(self, move, board=None):
             if board is None:
@@ -338,14 +338,14 @@ class Fiend(object):
 
             if move.fromX <= 14:
                 if move.fromX == move.toX:
-                    for i, y in enumerate(range(move.fromY, move.toY+1)):
+                    for i, y in enumerate(xrange(move.fromY, move.toY+1)):
                         if move.textCodes[i] == '*':
                             continue
 
                         if board[move.fromX][y] != -1:
                             raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
-                    for i, y in enumerate(range(move.fromY, move.toY+1)):
+                    for i, y in enumerate(xrange(move.fromY, move.toY+1)):
                         if move.textCodes[i] == '*':
                             continue
 
@@ -356,14 +356,14 @@ class Fiend(object):
                             blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
                 else:
-                    for i, x in enumerate(range(move.fromX, move.toX+1)):
+                    for i, x in enumerate(xrange(move.fromX, move.toX+1)):
                         if move.textCodes[i] == '*':
                             continue
 
                         if board[x][move.fromY] != -1:
                             raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
-                    for i, x in enumerate(range(move.fromX, move.toX+1)):
+                    for i, x in enumerate(xrange(move.fromX, move.toX+1)):
                         if move.textCodes[i] == '*':
                             continue
 
@@ -382,7 +382,7 @@ class Fiend(object):
         def _drawFromLetterBag(self, num):
             output = []
 
-            for tile in range(num):
+            for tile in xrange(num):
                 if len(self.letterBagCodes) == 0:
                     break
 
@@ -408,8 +408,8 @@ class Fiend(object):
             j = 0
             k = 225
 
-            for y in range(15):
-                for x in range(15):
+            for y in xrange(15):
+                for x in xrange(15):
                     if board[x][y] == -1:
                         i ^= 1
                         k -= 1
