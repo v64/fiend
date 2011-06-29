@@ -186,7 +186,7 @@ class Fiend(object):
             self.boardChecksum = 0
 
             self._blanks = [None, None]
-            self._letterBag = list(LETTER_MAP)
+            self.letterBagCodes = [i for i in range(len(LETTER_MAP))]
             self._randomSeed = None
             self._random = None
 
@@ -221,7 +221,7 @@ class Fiend(object):
             A list of letters not yet used in the game.
             """
 
-            return filter(lambda a: a != '-', self._letterBag)
+            return [LETTER_MAP[code] for code in self.letterBagCodes]
 
         @property
         def boardString(self):
@@ -384,15 +384,16 @@ class Fiend(object):
         def _drawFromLetterBag(self, num):
             output = []
 
-            for tile in range(0, num):
+            for tile in range(num):
                 rand = self._random.getrandbits()
-                i = rand % len()
+                i = rand % len(self.letterBagCodes)
 
-                if self._letterBag[i] == '-':
+                try:
+                    self.letterBagCodes.remove(i)
+                except:
                     raise Fiend.GameError('Random number generator fail', self)
 
                 output.append(i)
-                self._letterBag[i] = '-'
 
             return output
 
