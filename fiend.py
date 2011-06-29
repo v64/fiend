@@ -443,7 +443,7 @@ class Fiend(object):
 
         @property
         def rackLetters(self):
-            return [LETTER_MAP[num] for num in self.rack]
+            return sorted([LETTER_MAP[num] for num in self.rack])
 
     class Move(object):
         def __init__(self):
