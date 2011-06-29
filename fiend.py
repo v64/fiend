@@ -449,11 +449,7 @@ class Fiend(object):
 
         @property
         def rackLetters(self):
-            output = []
-            for num in self.rack:
-                output.append(LETTER_MAP[num])
-
-            return output
+            return [LETTER_MAP[num] for num in self.rack]
 
     class Move(object):
         def __init__(self):
