@@ -336,47 +336,46 @@ class Fiend(object):
             blanks = [None, None]
             passedTurn = False
 
-            # Out of bounds fromX is used to signify a pass, I think
-            if move.fromX > 14:
+            if move.fromX <= 14:
+                if move.fromX == move.toX:
+                    for i, y in enumerate(range(move.fromY, move.toY+1)):
+                        if move.textCodes[i] == '*':
+                            continue
+
+                        if board[move.fromX][y] != -1:
+                            raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
+
+                    for i, y in enumerate(range(move.fromY, move.toY+1)):
+                        if move.textCodes[i] == '*':
+                            continue
+
+                        board[move.fromX][y] = move.textCodes[i]
+                        numLettersPlayed += 1
+
+                        if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                            blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+
+                else:
+                    for i, x in enumerate(range(move.fromX, move.toX+1)):
+                        if move.textCodes[i] == '*':
+                            continue
+
+                        if board[x][move.fromY] != -1:
+                            raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
+
+                    for i, x in enumerate(range(move.fromX, move.toX+1)):
+                        if move.textCodes[i] == '*':
+                            continue
+
+                        board[x][move.fromY] = move.textCodes[i]
+                        numLettersPlayed += 1
+
+                        if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                            blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+            else:
+                # Out of bounds fromX is used to signify a pass or letter exchange
                 numLettersPlayed = len(move.textCodes)
                 passedTurn = True
-                return (numLettersPlayed, blanks, passedTurn)
-
-            if move.fromX == move.toX:
-                for i, y in enumerate(range(move.fromY, move.toY+1)):
-                    if move.textCodes[i] == '*':
-                        continue
-
-                    if board[move.fromX][y] != -1:
-                        raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
-
-                for i, y in enumerate(range(move.fromY, move.toY+1)):
-                    if move.textCodes[i] == '*':
-                        continue
-
-                    board[move.fromX][y] = move.textCodes[i]
-                    numLettersPlayed += 1
-
-                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
-
-            else:
-                for i, x in enumerate(range(move.fromX, move.toX+1)):
-                    if move.textCodes[i] == '*':
-                        continue
-
-                    if board[x][move.fromY] != -1:
-                        raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
-
-                for i, x in enumerate(range(move.fromX, move.toX+1)):
-                    if move.textCodes[i] == '*':
-                        continue
-
-                    board[x][move.fromY] = move.textCodes[i]
-                    numLettersPlayed += 1
-
-                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
             return (numLettersPlayed, blanks, passedTurn)
 
