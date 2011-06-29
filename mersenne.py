@@ -17,9 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This is a pure Python implementation of the Mersenne Twister. We need
-# to do this from scratch so it can be tweaked to exactly match the
-# output of the Words with Friends random number generator.
+# This is a pure Python implementation of the Mersenne Twister, which
+# Words with Friends uses as its random number generator. We need to
+# implement it from scratch instead of using Python's built-in random
+# number generator (which uses the Mersenne Twister), because we need
+# to tweak the algorithm to exactly match the output of the Words with
+# Friends random number generator.
+#
+# Mersenne Twister reference: http://en.wikipedia.org/wiki/Mersenne_twister
 
 N = 624
 M = 397
