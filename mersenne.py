@@ -29,8 +29,6 @@ DEFAULT_SEED = 4357
 
 class Mersenne(object):
     def __init__(self, seed=DEFAULT_SEED):
-        self.mt = []
-        self.mti = N+1
         self.mag01 = [0x0L, 0x9908b0dfL]
         self.seed(seed)
 
@@ -41,6 +39,9 @@ class Mersenne(object):
             return val
 
     def seed(self, seed):
+        self.mt = []
+        self.mti = N+1
+
         self.mt.append(seed & 0xffffffffL)
         for i in xrange(1, N+1):
             self.mt.append(1812433253L * (self.mt[i-1] ^ (self.mt[i-1] >> 30)) + i)
