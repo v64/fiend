@@ -191,6 +191,8 @@ class Fiend(object):
             self._random = None
 
             self.board = self._initBoard()
+            self.creator = None
+            self.opponent = None
             self.moves = []
 
         def setWithXml(self, xmlElem):
@@ -210,6 +212,7 @@ class Fiend(object):
             self.observers = str(xmlElem.findtext('observers'))
             self.createdAt = str(xmlElem.findtext('created-at'))
 
+            self._processUsers(xmlElem.find('users'))
             self._processMoves(xmlElem.find('moves'))
 
         @property
@@ -265,8 +268,8 @@ class Fiend(object):
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
             if move.moveIndex == 0:
-                # draw tiles for both players
-                pass
+                self.creator._rack = self._drawFromLetterBag(7)
+                self.opponent._rack = self._drawFromLetterBag(7)
 
             newBoard = copy.deepcopy(self.board)
             numLettersPlayed, blanks = self._updateBoard(move, newBoard)
@@ -282,9 +285,36 @@ class Fiend(object):
                     self._blanks[i] = blanks[i]
 
             self.boardChecksum = newBoardChecksum
-            self._updateLetterBag(move)
             move.game = self
+
+            newTiles = self._drawFromLetterBag(numLettersPlayed)
+
+            currentPlayer = None
+            if move.userId == self.creator.id:
+                currentPlayer = self.creator
+            else:
+                currentPlayer = self.opponent
+
+            for code in move.textCodes:
+                if code == '*':
+                    continue
+                currentPlayer._rack.remove(code)
+
+            for tile in newTiles:
+                currentPlayer._rack.append(tile)
+
             self.moves.append(move)
+
+        def _processUsers(self, usersXml):
+            for userXml in usersXml:
+                userObj = Fiend.User()
+                userObj.setWithXml(userXml)
+
+                if userObj.id == self.createdByUserId:
+                    userObj.creator = True
+                    self.creator = userObj
+                else:
+                    self.opponent = userObj
 
         def _processMoves(self, movesXml):
             moveList = []
@@ -351,27 +381,17 @@ class Fiend(object):
 
             return (numLettersPlayed, blanks)
 
-        def _updateLetterBag(self, move):
-            letterCodes = move.text[:-1].split(',')
-            for letterCode in letterCodes:
-                if letterCode == '*':
-                    continue;
-                else:
-                    try:
-                        self._letterBag[int(letterCode)] = '-'
-                    except ValueError:
-                        continue;
-
         def _drawFromLetterBag(self, num):
             output = []
 
             for tile in range(0, num):
-                i = self._random.randint(0, 104)
+                rand = self._random.getrandbits()
+                i = rand % len()
 
                 if self._letterBag[i] == '-':
                     raise Fiend.GameError('Random number generator fail', self)
 
-                output.append(self._letterBag[i])
+                output.append(i)
                 self._letterBag[i] = '-'
 
             return output
@@ -412,6 +432,26 @@ class Fiend(object):
                     i -= 2
 
             return i
+
+    class User(object):
+        def __init__(self):
+            self.id = None
+            self.name = None
+            self.creator = False
+
+            self._rack = None
+        
+        def setWithXml(self, xmlElem):
+            self.id = int(xmlElem.findtext('id'))
+            self.name = str(xmlElem.findtext('name'))
+
+        @property
+        def tiles(self):
+            output = []
+            for num in self._rack:
+                output.append(LETTER_MAP[num])
+
+            return output
 
     class Move(object):
         def __init__(self):
