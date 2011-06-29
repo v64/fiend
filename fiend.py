@@ -20,7 +20,7 @@ import base64
 import copy
 import xml.etree.ElementTree as etree
 import httplib2
-import random
+import mersenne
 
 # Device data required in the headers.
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
@@ -251,8 +251,9 @@ class Fiend(object):
         @randomSeed.setter
         def randomSeed(self, value):
             self._randomSeed = value
-            self._random = random.Random()
-            self._random.seed(self._randomSeed)
+
+            if self._randomSeed is not None:
+                self._random = mersenne.Mersenne(self._randomSeed)
 
         def addMove(self, move):
             """
@@ -268,11 +269,11 @@ class Fiend(object):
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
             if move.moveIndex == 0:
-                self.creator._rack = self._drawFromLetterBag(7)
-                self.opponent._rack = self._drawFromLetterBag(7)
+                self.creator.rack = self._drawFromLetterBag(7)
+                self.opponent.rack = self._drawFromLetterBag(7)
 
             newBoard = copy.deepcopy(self.board)
-            numLettersPlayed, blanks = self._updateBoard(move, newBoard)
+            numLettersPlayed, blanks, passedTurn = self._updateBoard(move, newBoard)
             newBoardChecksum = self._calculateBoardChecksum(newBoard)
             if move.boardChecksum is None:
                 move.boardChecksum = newBoardChecksum
@@ -287,21 +288,19 @@ class Fiend(object):
             self.boardChecksum = newBoardChecksum
             move.game = self
 
+            currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
+
             newTiles = self._drawFromLetterBag(numLettersPlayed)
-
-            currentPlayer = None
-            if move.userId == self.creator.id:
-                currentPlayer = self.creator
-            else:
-                currentPlayer = self.opponent
-
-            for code in move.textCodes:
-                if code == '*':
-                    continue
-                currentPlayer._rack.remove(code)
-
             for tile in newTiles:
-                currentPlayer._rack.append(tile)
+                currentPlayer.rack.append(tile)
+
+            for tile in move.textCodes:
+                if tile == '*':
+                    continue
+                currentPlayer.rack.remove(tile)
+
+                if passedTurn:
+                    self.letterBagCodes.append(tile)
 
             self.moves.append(move)
 
@@ -338,10 +337,13 @@ class Fiend(object):
 
             numLettersPlayed = 0
             blanks = [None, None]
+            passedTurn = False
 
             # Out of bounds fromX is used to signify a pass, I think
             if move.fromX > 14:
-                return (numLettersPlayed, blanks)
+                numLettersPlayed = len(move.textCodes)
+                passedTurn = True
+                return (numLettersPlayed, blanks, passedTurn)
 
             if move.fromX == move.toX:
                 for i, y in enumerate(range(move.fromY, move.toY+1)):
@@ -379,21 +381,18 @@ class Fiend(object):
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
-            return (numLettersPlayed, blanks)
+            return (numLettersPlayed, blanks, passedTurn)
 
         def _drawFromLetterBag(self, num):
             output = []
 
             for tile in range(num):
-                rand = self._random.getrandbits()
-                i = rand % len(self.letterBagCodes)
+                if len(self.letterBagCodes) == 0:
+                    break
 
-                try:
-                    self.letterBagCodes.remove(i)
-                except:
-                    raise Fiend.GameError('Random number generator fail', self)
-
-                output.append(i)
+                i = self._random.getUnwrappedInt() % len(self.letterBagCodes)
+                output.append(self.letterBagCodes[i])
+                del self.letterBagCodes[i]
 
             return output
 
@@ -440,16 +439,16 @@ class Fiend(object):
             self.name = None
             self.creator = False
 
-            self._rack = None
+            self.rack = None
         
         def setWithXml(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
             self.name = str(xmlElem.findtext('name'))
 
         @property
-        def tiles(self):
+        def rackLetters(self):
             output = []
-            for num in self._rack:
+            for num in self.rack:
                 output.append(LETTER_MAP[num])
 
             return output
