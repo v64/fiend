@@ -382,7 +382,7 @@ class Fiend(object):
         def _drawFromLetterBag(self, num):
             output = []
 
-            for tile in xrange(num):
+            for dummy in xrange(num):
                 if len(self.letterBagCodes) == 0:
                     break
 
