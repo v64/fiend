@@ -290,14 +290,9 @@ class Fiend(object):
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
-            newTiles = self._drawFromLetterBag(numLettersPlayed)
-            for tile in newTiles:
-                currentPlayer.rack.append(tile)
+            currentPlayer.rack.extend(self._drawFromLetterBag(numLettersPlayed))
 
-            for tile in move.textCodes:
-                if tile == '*':
-                    continue
-
+            for tile in filter(lambda a: a != '*', move.textCodes):
                 currentPlayer.rack.remove(tile)
 
                 if passedTurn:
