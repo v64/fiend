@@ -37,7 +37,7 @@ class Mersenne(object):
         self.mag01 = [0x0L, 0x9908b0dfL]
         self.seed(seed)
 
-    def _castToSigned(self, val):
+    def _wrapInt(self, val):
         if val & 0x80000000:
             return -0x100000000 + val
         else:
@@ -84,9 +84,9 @@ class Mersenne(object):
         return y >> (32 - bits)
 
     def getInt(self, n=None):
-        return self._castToSigned(self._getInt(n))
+        return self._wrapInt(self.getUnwrappedInt(n))
 
-    def _getInt(self, n=None):
+    def getUnwrappedInt(self, n=None):
         if n is None:
             return self.rand(32)
 
