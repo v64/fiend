@@ -274,6 +274,7 @@ class Fiend(object):
 
             newBoard = copy.deepcopy(self.board)
             numLettersPlayed, blanks, passedTurn = self._updateBoard(move, newBoard)
+
             newBoardChecksum = self._calculateBoardChecksum(newBoard)
             if move.boardChecksum is None:
                 move.boardChecksum = newBoardChecksum
@@ -281,12 +282,11 @@ class Fiend(object):
                 raise Fiend.MoveError("Board checksum mismatch", move, self)
 
             self.board = newBoard
+            self.boardChecksum = newBoardChecksum
+
             for i in [0, 1]:
                 if blanks[i]:
                     self._blanks[i] = blanks[i]
-
-            self.boardChecksum = newBoardChecksum
-            move.game = self
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
@@ -297,11 +297,13 @@ class Fiend(object):
             for tile in move.textCodes:
                 if tile == '*':
                     continue
+
                 currentPlayer.rack.remove(tile)
 
                 if passedTurn:
                     self.letterBagCodes.append(tile)
 
+            move.game = self
             self.moves.append(move)
 
         def _processUsers(self, usersXml):
