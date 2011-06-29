@@ -84,9 +84,9 @@ class Mersenne(object):
         return y >> (32 - bits)
 
     def getInt(self, n=None):
-        return self._castToSigned(self.getLong(n))
+        return self._castToSigned(self._getInt(n))
 
-    def getLong(self, n=None):
+    def _getInt(self, n=None):
         if n is None:
             return self.rand(32)
 
