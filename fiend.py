@@ -179,20 +179,21 @@ class Fiend(object):
             self.wasMatchmaking = None
             self.movesCount = None
             self.moveCount = None
-            self.randomSeed = None
             self.clientVersion = None
             self.observers = None
             self.createdAt = None
             self.boardChecksum = 0
 
+            self._randomSeed = None
+            self.randomSeed = None
+
             self._blanks = [None, None]
             self.letterBagCodes = [i for i in xrange(len(LETTER_MAP))]
-            self._randomSeed = None
             self._random = None
 
             self.board = self._initBoard()
-            self.creator = None
-            self.opponent = None
+            self.creator = Fiend.User()
+            self.opponent = Fiend.User()
             self.moves = []
 
         def setWithXml(self, xmlElem):
@@ -250,10 +251,13 @@ class Fiend(object):
 
         @randomSeed.setter
         def randomSeed(self, value):
-            self._randomSeed = value
-
             if self._randomSeed is not None:
+                raise GameError('randomSeed is already set for game', self)
+
+            if value is not None:
+                self._randomSeed = value
                 self._random = mersenne.Mersenne(self._randomSeed)
+                self._assignInitialTiles()
 
         @property
         def remainingLetterCodes(self):
@@ -277,10 +281,6 @@ class Fiend(object):
                 move.moveIndex = nextMoveIndex
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
-
-            if move.moveIndex == 0:
-                self.creator.rack = self._drawFromLetterBag(7)
-                self.opponent.rack = self._drawFromLetterBag(7)
 
             newBoard = copy.deepcopy(self.board)
             numLettersPlayed, blanks, passedTurn = self._updateBoard(move, newBoard)
@@ -311,6 +311,10 @@ class Fiend(object):
             move.game = self
             self.moves.append(move)
 
+        def _assignInitialTiles(self):
+            self.creator.rack = self._drawFromLetterBag(7)
+            self.opponent.rack = self._drawFromLetterBag(7)
+
         def _processUsers(self, usersXml):
             for userXml in usersXml:
                 userObj = Fiend.User()
@@ -318,8 +322,10 @@ class Fiend(object):
 
                 if userObj.id == self.createdByUserId:
                     userObj.creator = True
+                    userObj.rack = self.creator.rack
                     self.creator = userObj
                 else:
+                    userObj.rack = self.opponent.rack
                     self.opponent = userObj
 
         def _processMoves(self, movesXml):
