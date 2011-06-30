@@ -354,40 +354,30 @@ class Fiend(object):
 
             if move.fromX <= 14:
                 if move.fromX == move.toX:
-                    for i, y in enumerate(xrange(move.fromY, move.toY+1)):
-                        if move.textCodes[i] == '*':
-                            continue
-
-                        if board[move.fromX][y] != -1:
-                            raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
-
-                    for i, y in enumerate(xrange(move.fromY, move.toY+1)):
-                        if move.textCodes[i] == '*':
-                            continue
-
-                        board[move.fromX][y] = move.textCodes[i]
-                        numLettersPlayed += 1
-
-                        if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                            blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
-
+                    moveCoords = [(move.fromX, y) for y in xrange(move.fromY, move.toY+1)]
                 else:
-                    for i, x in enumerate(xrange(move.fromX, move.toX+1)):
-                        if move.textCodes[i] == '*':
-                            continue
+                    moveCoords = [(x, move.fromY) for x in xrange(move.fromX, move.toX+1)]
 
-                        if board[x][move.fromY] != -1:
-                            raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
+                # First, loop through and make sure the entire move is legal.
+                for i, (x,y) in enumerate(moveCoords):
+                    if move.textCodes[i] == '*':
+                        continue
 
-                    for i, x in enumerate(xrange(move.fromX, move.toX+1)):
-                        if move.textCodes[i] == '*':
-                            continue
+                    if board[x][y] != -1:
+                        raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
-                        board[x][move.fromY] = move.textCodes[i]
-                        numLettersPlayed += 1
+                # Now that the move has been verified as legal, loop through and actually
+                # apply the move.
+                for i, (x,y) in enumerate(moveCoords):
+                    if move.textCodes[i] == '*':
+                        continue
 
-                        if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                            blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+                    board[x][y] = move.textCodes[i]
+                    numLettersPlayed += 1
+
+                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+
             else:
                 # Out of bounds fromX is used to signify a pass or letter exchange
                 numLettersPlayed = len(move.textCodes)
