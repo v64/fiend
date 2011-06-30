@@ -273,6 +273,9 @@ class Fiend(object):
             the Game's board.
             """
 
+            if self.randomSeed is None:
+                raise GameError('Game does not have a randomSeed', self)
+
             # moveIndex is 0-indexed
             nextMoveIndex = len(self.moves)
             if move.moveIndex is None:
