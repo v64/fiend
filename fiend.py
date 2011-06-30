@@ -184,11 +184,9 @@ class Fiend(object):
             self.createdAt = None
             self.boardChecksum = 0
 
-            self._randomSeed = None
-            self.randomSeed = None
-
             self._blanks = [None, None]
             self.letterBagCodes = [i for i in xrange(len(LETTER_MAP))]
+            self._randomSeed = None
             self._random = None
 
             self.board = self._initBoard()
