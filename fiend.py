@@ -85,14 +85,14 @@ BONUS_SQUARES = [['-', '-', '-', '$', '-', '-', '!', '-', '!', '-', '-', '$', '-
 
 class Fiend(object):
     def __init__(self, login, password, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
-        """
+        '''
         Params:
             login - Your Words with Friends login email address.
             password - Your phone's device ID. For Android, this can be found in Settings > About phone > Status > MEID.
             userAgent - The string sent in the User-Agent header.
             deviceOs - The string set in the Device-OS header.
             deviceId - The string set in the Device-Id header.
-        """
+        '''
 
         self.login = login
         self.password = password
@@ -108,13 +108,13 @@ class Fiend(object):
 
     @property
     def games(self):
-        """
+        '''
         A dictionary of your games, with game IDs as the keys, and
         Game objects as the values.
 
         This property is lazy loaded. If you want to force a refresh, call
         refreshGames().
-        """
+        '''
 
         if not self._games:
             self.refreshGames()
@@ -132,11 +132,11 @@ class Fiend(object):
         return activeGames
 
     def refreshGames(self):
-        """
+        '''
         Makes a call to the server to retrieve a list of your games. It sets
         the games property to be a dictionary, with game IDs as the keys, and 
         Game objects as the values.
-        """
+        '''
 
         self._games = {}
 
@@ -227,17 +227,17 @@ class Fiend(object):
 
         @property
         def letterBag(self):
-            """
+            '''
             A list of letters not yet used in the game.
-            """
+            '''
 
             return [LETTER_MAP[code] for code in self.letterBagCodes]
 
         @property
         def boardString(self):
-            """
+            '''
             Returns a 15x15 text grid of the game board.
-            """
+            '''
 
             board = '';
 
@@ -250,39 +250,39 @@ class Fiend(object):
                     else:
                         board += LETTER_MAP[self.board[x][y]]
 
-                board += "\n"
+                board += '\n'
 
             return board
 
         @property
         def boardGrid(self):
-            board = "   " + ("+---"*15) + "+\n"
+            board = '   ' + ('+---'*15) + '+\n'
 
             for y in range(15):
                 num = 14 - y
                 if num < 10:
-                    board += " " + str(num)
+                    board += ' ' + str(num)
                 else:
                     board += str(num)
 
-                board += " |"
+                board += ' |'
 
                 for x in range(15):
                     if self.board[x][y] == -1:
-                        if BONUS_SQUARES[x][y] == "-":
-                            board += "   |"
+                        if BONUS_SQUARES[x][y] == '-':
+                            board += '   |'
                         else:
-                            board += " " + BONUS_SQUARES[x][y] + " |"
+                            board += ' ' + BONUS_SQUARES[x][y] + ' |'
                     elif self.board[x][y] == 0 or self.board[x][y] == 1:
-                        board += " " + self._blanks[self.board[x][y]] + " |"
+                        board += ' ' + self._blanks[self.board[x][y]] + ' |'
                     else:
-                        board += " " + LETTER_MAP[self.board[x][y]] + " |"
+                        board += ' ' + LETTER_MAP[self.board[x][y]] + ' |'
 
-                board += "\n   " + ("+---"*15) + "+\n"
+                board += '\n   ' + ('+---'*15) + '+\n'
 
-            board += "     " + "   ".join([str(x) for x in range(10)])
-            board += "   " + "  ".join([str(x) for x in range(10,15)])
-            board += "\n"
+            board += '     ' + '   '.join([str(x) for x in range(10)])
+            board += '   ' + '  '.join([str(x) for x in range(10,15)])
+            board += '\n'
 
             return board
 
@@ -311,10 +311,10 @@ class Fiend(object):
             return [LETTER_MAP[code] for code in self.remainingLetterCodes]
 
         def addMove(self, move):
-            """
+            '''
             Takes a Move object as an argument. Adds the Move to the Game and updates
             the Game's board.
-            """
+            '''
 
             if self.gameOver:
                 raise Fiend.MoveError('Moves cannot be added to an ended game', move, self)
@@ -413,7 +413,7 @@ class Fiend(object):
                 if move.boardChecksum is None:
                     move.boardChecksum = workingBoardChecksum
                 elif move.boardChecksum != 0 and move.boardChecksum != workingBoardChecksum:
-                    raise Fiend.MoveError("Board checksum mismatch", move, self)
+                    raise Fiend.MoveError('Board checksum mismatch', move, self)
 
                 # Move was successful, make working board the real board
                 self.board = workingBoard
@@ -451,13 +451,13 @@ class Fiend(object):
             return output
 
         def _calculateBoardChecksum(self, board=None):
-            """
+            '''
             Calculates the board_checksum value for the board in its current state.
             Since addMove() calls this, you shouldn't need to call it yourself and
             can just rely on game.boardChecksum.
 
             If anyone recognizes this as a known algorithm, let me know.
-            """
+            '''
 
             if board is None:
                 board = self.board
@@ -570,7 +570,7 @@ class Fiend(object):
 
         @property
         def textWord(self):
-            """
+            '''
             A Move's text field is either a comma separated series of numbers, asterisks,
             and letters, or the string '(null)'.
             
@@ -583,7 +583,7 @@ class Fiend(object):
             has been selected as its value.
 
             If the text field equals '(null)', then the turn was a pass.
-            """
+            '''
 
             if self._textWord is None:
                 # This signifies the turn was a pass
@@ -617,7 +617,7 @@ class Fiend(object):
                     self._blanks[int(i)] = letterCodes[letterCodes.index(i) + 1].upper()
 
     class Error(Exception):
-        """Base class for exceptions in this module."""
+        '''Base class for exceptions in this module.'''
         pass
 
     class GameError(Error):
@@ -629,14 +629,14 @@ class Fiend(object):
             return repr(self.msg)
 
     class MoveError(Error):
-        """
+        '''
         Raised when an error occurs when adding a move to a board.
 
         Params:
             msg: Error message for the exception.
             move: The move that caused the error.
             game: The game that this move was trying to be added to.
-        """
+        '''
 
         def __init__(self, msg, move, game):
             self.msg = msg
