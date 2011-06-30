@@ -255,6 +255,38 @@ class Fiend(object):
             return board
 
         @property
+        def boardGrid(self):
+            board = "   " + ("+---"*15) + "+\n"
+
+            for y in range(15):
+                num = 14 - y
+                if num < 10:
+                    board += " " + str(num)
+                else:
+                    board += str(num)
+
+                board += " |"
+
+                for x in range(15):
+                    if self.board[x][y] == -1:
+                        if BONUS_SQUARES[x][y] == "-":
+                            board += "   |"
+                        else:
+                            board += " " + BONUS_SQUARES[x][y] + " |"
+                    elif self.board[x][y] == 0 or self.board[x][y] == 1:
+                        board += " " + self._blanks[self.board[x][y]] + " |"
+                    else:
+                        board += " " + LETTER_MAP[self.board[x][y]] + " |"
+
+                board += "\n   " + ("+---"*15) + "+\n"
+
+            board += "     " + "   ".join([str(x) for x in range(10)])
+            board += "   " + "  ".join([str(x) for x in range(10,15)])
+            board += "\n"
+
+            return board
+
+        @property
         def randomSeed(self):
             return self._randomSeed
 
