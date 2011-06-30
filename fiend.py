@@ -284,8 +284,11 @@ class Fiend(object):
             the Game's board.
             """
 
+            if self.gameOver:
+                raise Fiend.MoveError('Moves cannot be added to an ended game', move, self)
+
             if self.randomSeed is None:
-                raise GameError('Game does not have a randomSeed', self)
+                raise Fiend.GameError('Game does not have a randomSeed', self)
 
             # moveIndex is 0-indexed
             nextMoveIndex = len(self.moves)
@@ -294,17 +297,7 @@ class Fiend(object):
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
-            newBoard = copy.deepcopy(self.board)
-            numLettersPlayed, blanks, passedTurn = self._updateBoard(move, newBoard)
-
-            newBoardChecksum = self._calculateBoardChecksum(newBoard)
-            if move.boardChecksum is None:
-                move.boardChecksum = newBoardChecksum
-            elif move.boardChecksum != 0 and move.boardChecksum != newBoardChecksum:
-                raise Fiend.MoveError("Board checksum mismatch", move, self)
-
-            self.board = newBoard
-            self.boardChecksum = newBoardChecksum
+            numLettersPlayed, blanks, passedTurn = self._updateBoard(move)
 
             for i in [0, 1]:
                 if blanks[i]:
@@ -356,12 +349,10 @@ class Fiend(object):
         def _initBoard(self):
             return [[-1 for y in range(15)] for x in range(15)]
 
-        def _updateBoard(self, move, board=None):
-            if board is None:
-                board = self.board
-
-            if self.gameOver:
-                raise Fiend.MoveError('Moves cannot be added to an ended game', move, self)
+        def _updateBoard(self, move):
+            # Make a copy of the board so that if any exceptions are raised,
+            # then the actual board isn't corrupted.
+            workingBoard = copy.deepcopy(self.board)
 
             numLettersPlayed = 0
             blanks = [None, None]
@@ -373,31 +364,36 @@ class Fiend(object):
                 else:
                     moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
 
-                # First, loop through and make sure the entire move is legal.
                 for i, (x,y) in enumerate(moveCoords):
                     if move.textCodes[i] == '*':
                         continue
 
-                    if board[x][y] != -1:
+                    if workingBoard[x][y] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
 
-                # Now that the move has been verified as legal, loop through and actually
-                # apply the move.
-                for i, (x,y) in enumerate(moveCoords):
-                    if move.textCodes[i] == '*':
-                        continue
-
-                    board[x][y] = move.textCodes[i]
+                    workingBoard[x][y] = move.textCodes[i]
                     numLettersPlayed += 1
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+
+                workingBoardChecksum = self._calculateBoardChecksum(workingBoard)
+                if move.boardChecksum is None:
+                    move.boardChecksum = workingBoardChecksum
+                elif move.boardChecksum != 0 and move.boardChecksum != workingBoardChecksum:
+                    raise Fiend.MoveError("Board checksum mismatch", move, self)
+
+                # Move was successful, make working board the real board
+                self.board = workingBoard
+                self.boardChecksum = workingBoardChecksum
 
             else:
                 # Out of bounds fromX is used to signify a pass or letter exchange
                 numLettersPlayed = len(move.textCodes)
                 passedTurn = True
 
+                # Either a player won or the game ended due to someone not taking their
+                # turn in a given amount of time.
                 if move.fromX == 99 or move.fromX == 100:
                     self.gameOver = True
 
