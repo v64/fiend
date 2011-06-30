@@ -402,7 +402,7 @@ class Fiend(object):
                 if len(letterBagCodes) == 0:
                     break
 
-                i = random.getUnwrappedInt() % len(letterBagCodes)
+                i = random.rand() % len(letterBagCodes)
                 output.append(letterBagCodes[i])
                 del letterBagCodes[i]
 

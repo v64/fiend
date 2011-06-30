@@ -31,21 +31,14 @@ M = 397
 UPPER_MASK = 0x80000000L
 LOWER_MASK = 0x7fffffffL
 DEFAULT_SEED = 4357
+MAG01 = [0x0L, 0x9908b0dfL]
 
 class Mersenne(object):
     def __init__(self, seed=DEFAULT_SEED):
-        self.mag01 = [0x0L, 0x9908b0dfL]
         self.seed(seed)
-
-    def _wrapInt(self, val):
-        if val & 0x80000000:
-            return -0x100000000 + val
-        else:
-            return val
 
     def seed(self, seed):
         self.mt = []
-        self.mti = N+1
 
         self.mt.append(seed & 0xffffffffL)
         for i in xrange(1, N+1):
@@ -54,7 +47,7 @@ class Mersenne(object):
 
         self.mti = i
 
-    def rand(self, bits):
+    def rand(self):
         y = 0
 
         if self.mti >= N:
@@ -63,43 +56,23 @@ class Mersenne(object):
 
             for kk in xrange((N-M) + 1):
                 y = (self.mt[kk]&UPPER_MASK)|(self.mt[kk+1]&LOWER_MASK)
-                self.mt[kk] = self.mt[kk+M] ^ (y >> 1) ^ self.mag01[y & 0x1]
+                self.mt[kk] = self.mt[kk+M] ^ (y >> 1) ^ MAG01[y & 0x1]
 
             for kk in xrange(kk, N):
                 y = (self.mt[kk]&UPPER_MASK)|(self.mt[kk+1]&LOWER_MASK)
-                self.mt[kk] = self.mt[kk+(M-N)] ^ (y >> 1) ^ self.mag01[y & 0x1]
+                self.mt[kk] = self.mt[kk+(M-N)] ^ (y >> 1) ^ MAG01[y & 0x1]
 
             y = (self.mt[N-1]&UPPER_MASK)|(self.mt[0]&LOWER_MASK)
-            self.mt[N-1] = self.mt[M-1] ^ (y >> 1) ^ self.mag01[y & 0x1]
+            self.mt[N-1] = self.mt[M-1] ^ (y >> 1) ^ MAG01[y & 0x1]
 
             self.mti = 0
 
         y = self.mt[self.mti]
         self.mti += 1
+
         y ^= (y >> 11)
         y ^= (y << 7) & 0x9d2c5680L 
         y ^= (y << 15) & 0xefc60000L 
         y ^= (y >> 18)
 
-        return y >> (32 - bits)
-
-    def getInt(self, n=None):
-        return self._wrapInt(self.getUnwrappedInt(n))
-
-    def getUnwrappedInt(self, n=None):
-        if n is None:
-            return self.rand(32)
-
-        if n <= 0:
-            raise ValueError('n must be greater than 0')
-
-        if (n & -n) == n:
-            return int((n * long(self.rand(31))) >> 31)
-
-        bits = self.nextRand(31)
-        val = bits % n
-        while bits - val + (n-1) < 0:
-            bits = self.rand(31)
-            val = bits % n
-
-        return val
+        return y
