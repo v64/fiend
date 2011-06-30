@@ -255,6 +255,16 @@ class Fiend(object):
             if self._randomSeed is not None:
                 self._random = mersenne.Mersenne(self._randomSeed)
 
+        @property
+        def remainingLetterCodes(self):
+            random = copy.deepcopy(self._random)
+            letterBagCodes = copy.deepcopy(self.letterBagCodes)
+            return self._drawFromLetterBag(len(letterBagCodes), random, letterBagCodes)
+
+        @property
+        def remainingLetters(self):
+            return [LETTER_MAP[code] for code in self.remainingLetterCodes]
+
         def addMove(self, move):
             """
             Takes a Move object as an argument. Adds the Move to the Game and updates
@@ -379,16 +389,22 @@ class Fiend(object):
 
             return (numLettersPlayed, blanks, passedTurn)
 
-        def _drawFromLetterBag(self, num):
+        def _drawFromLetterBag(self, num, random=None, letterBagCodes=None):
+            if random is None:
+                random = self._random
+
+            if letterBagCodes is None:
+                letterBagCodes = self.letterBagCodes
+
             output = []
 
             for dummy in xrange(num):
-                if len(self.letterBagCodes) == 0:
+                if len(letterBagCodes) == 0:
                     break
 
-                i = self._random.getUnwrappedInt() % len(self.letterBagCodes)
-                output.append(self.letterBagCodes[i])
-                del self.letterBagCodes[i]
+                i = random.getUnwrappedInt() % len(letterBagCodes)
+                output.append(letterBagCodes[i])
+                del letterBagCodes[i]
 
             return output
 
