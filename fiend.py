@@ -259,24 +259,25 @@ class Fiend(object):
             board = '   ' + ('+---'*15) + '+\n'
 
             for y in range(15):
-                num = 14 - y
-                if num < 10:
-                    board += ' ' + str(num)
-                else:
-                    board += str(num)
+                if 14 - y < 10:
+                    board += ' '
 
-                board += ' |'
+                board += str(14 - y) + ' |'
 
                 for x in range(15):
+                    board += ' '
+
                     if self.board[x][y] == -1:
                         if BONUS_SQUARES[x][y] == '-':
-                            board += '   |'
+                            board += ' '
                         else:
-                            board += ' ' + BONUS_SQUARES[x][y] + ' |'
+                            board += BONUS_SQUARES[x][y]
                     elif self.board[x][y] == 0 or self.board[x][y] == 1:
-                        board += ' ' + self._blanks[self.board[x][y]] + ' |'
+                        board += self._blanks[self.board[x][y]]
                     else:
-                        board += ' ' + LETTER_MAP[self.board[x][y]] + ' |'
+                        board += LETTER_MAP[self.board[x][y]]
+
+                    board += ' |'
 
                 board += '\n   ' + ('+---'*15) + '+\n'
 
