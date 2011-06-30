@@ -350,15 +350,15 @@ class Fiend(object):
             return [[-1 for y in range(15)] for x in range(15)]
 
         def _updateBoard(self, move):
-            # Make a copy of the board so that if any exceptions are raised,
-            # then the actual board isn't corrupted.
-            workingBoard = copy.deepcopy(self.board)
-
             numLettersPlayed = 0
             blanks = [None, None]
             passedTurn = False
 
             if move.fromX <= 14:
+                # Make a copy of the board so that if any exceptions are raised,
+                # then the actual board isn't corrupted.
+                workingBoard = copy.deepcopy(self.board)
+
                 if move.fromX == move.toX:
                     moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
                 else:
