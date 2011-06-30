@@ -121,6 +121,16 @@ class Fiend(object):
 
         return self._games
 
+    @property
+    def activeGames(self):
+        activeGames = {}
+
+        for id, game in self.games.items():
+            if not game.gameOver:
+                activeGames[id] = game
+
+        return activeGames
+
     def refreshGames(self):
         """
         Makes a call to the server to retrieve a list of your games. It sets
@@ -193,6 +203,7 @@ class Fiend(object):
             self.creator = Fiend.User()
             self.opponent = Fiend.User()
             self.moves = []
+            self.gameOver = False
 
         def setWithXml(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
@@ -349,6 +360,9 @@ class Fiend(object):
             if board is None:
                 board = self.board
 
+            if self.gameOver:
+                raise Fiend.MoveError('Moves cannot be added to an ended game', move, self)
+
             numLettersPlayed = 0
             blanks = [None, None]
             passedTurn = False
@@ -383,6 +397,9 @@ class Fiend(object):
                 # Out of bounds fromX is used to signify a pass or letter exchange
                 numLettersPlayed = len(move.textCodes)
                 passedTurn = True
+
+                if move.fromX == 99 or move.fromX == 100:
+                    self.gameOver = True
 
             return (numLettersPlayed, blanks, passedTurn)
 
