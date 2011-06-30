@@ -1,7 +1,7 @@
 # Fiend - A Python module for accessing Zynga's Words with Friends
 # Copyright (C) 2011 Jahn Veach <v64@v64.net>
 #
-# This file is originally based on work by Sean Perry.
+# This file is originally based on work by Sean Perry <shalehperry@attbi.com>.
 # Source: http://mail.python.org/pipermail/python-list/2002-October/775128.html
 # 
 # This program is free software: you can redistribute it and/or modify
