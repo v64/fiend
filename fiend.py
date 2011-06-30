@@ -166,7 +166,7 @@ class Fiend(object):
 
     def _makeUrl(self, call, params):
         url = WWF_URL + call + '?'
-        url += '&'.join([str(k) + '=' + str(v) for k, v in params.iteritems()])
+        url += '&'.join([str(k) + '=' + str(v) for k, v in params.items()])
         return url
 
     class Game(object):
@@ -185,7 +185,7 @@ class Fiend(object):
             self.boardChecksum = 0
 
             self._blanks = [None, None]
-            self.letterBagCodes = [i for i in xrange(len(LETTER_MAP))]
+            self.letterBagCodes = [i for i in range(len(LETTER_MAP))]
             self._randomSeed = None
             self._random = None
 
@@ -230,8 +230,8 @@ class Fiend(object):
 
             board = '';
 
-            for y in xrange(15):
-                for x in xrange(15):
+            for y in range(15):
+                for x in range(15):
                     if self.board[x][y] == -1:
                         board += BONUS_SQUARES[x][y]
                     elif self.board[x][y] == 0 or self.board[x][y] == 1:
@@ -303,7 +303,7 @@ class Fiend(object):
 
             currentPlayer.rack.extend(self._drawFromLetterBag(numLettersPlayed))
 
-            for tile in filter(lambda a: a != '*', move.textCodes):
+            for tile in [a for a in move.textCodes if a != '*']:
                 currentPlayer.rack.remove(tile)
 
                 if passedTurn:
@@ -343,7 +343,7 @@ class Fiend(object):
                 self.addMove(moveObj)
 
         def _initBoard(self):
-            return [[-1 for y in xrange(15)] for x in xrange(15)]
+            return [[-1 for y in range(15)] for x in range(15)]
 
         def _updateBoard(self, move, board=None):
             if board is None:
@@ -355,9 +355,9 @@ class Fiend(object):
 
             if move.fromX <= 14:
                 if move.fromX == move.toX:
-                    moveCoords = [(move.fromX, y) for y in xrange(move.fromY, move.toY+1)]
+                    moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
                 else:
-                    moveCoords = [(x, move.fromY) for x in xrange(move.fromX, move.toX+1)]
+                    moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
 
                 # First, loop through and make sure the entire move is legal.
                 for i, (x,y) in enumerate(moveCoords):
@@ -395,7 +395,7 @@ class Fiend(object):
 
             output = []
 
-            for dummy in xrange(num):
+            for dummy in range(num):
                 if len(letterBagCodes) == 0:
                     break
 
@@ -421,8 +421,8 @@ class Fiend(object):
             j = 0
             k = 225
 
-            for y in xrange(15):
-                for x in xrange(15):
+            for y in range(15):
+                for x in range(15):
                     if board[x][y] == -1:
                         i ^= 1
                         k -= 1

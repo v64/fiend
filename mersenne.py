@@ -24,10 +24,10 @@
 
 N = 624
 M = 397
-UPPER_MASK = 0x80000000L
-LOWER_MASK = 0x7fffffffL
+UPPER_MASK = 0x80000000
+LOWER_MASK = 0x7fffffff
 DEFAULT_SEED = 4357
-MAG01 = [0x0L, 0x9908b0dfL]
+MAG01 = [0x0, 0x9908b0df]
 
 class Mersenne(object):
     def __init__(self, seed=DEFAULT_SEED):
@@ -36,10 +36,10 @@ class Mersenne(object):
     def seed(self, seed):
         self.mt = []
 
-        self.mt.append(seed & 0xffffffffL)
-        for i in xrange(1, N+1):
-            self.mt.append(1812433253L * (self.mt[i-1] ^ (self.mt[i-1] >> 30)) + i)
-            self.mt[i] &= 0xffffffffL
+        self.mt.append(seed & 0xffffffff)
+        for i in range(1, N+1):
+            self.mt.append(1812433253 * (self.mt[i-1] ^ (self.mt[i-1] >> 30)) + i)
+            self.mt[i] &= 0xffffffff
 
         self.mti = i
 
@@ -50,11 +50,11 @@ class Mersenne(object):
             if self.mti == N+1:
                 self.seed(DEFAULT_SEED)
 
-            for kk in xrange((N-M) + 1):
+            for kk in range((N-M) + 1):
                 y = (self.mt[kk]&UPPER_MASK)|(self.mt[kk+1]&LOWER_MASK)
                 self.mt[kk] = self.mt[kk+M] ^ (y >> 1) ^ MAG01[y & 0x1]
 
-            for kk in xrange(kk, N):
+            for kk in range(kk, N):
                 y = (self.mt[kk]&UPPER_MASK)|(self.mt[kk+1]&LOWER_MASK)
                 self.mt[kk] = self.mt[kk+(M-N)] ^ (y >> 1) ^ MAG01[y & 0x1]
 
@@ -67,8 +67,8 @@ class Mersenne(object):
         self.mti += 1
 
         y ^= (y >> 11)
-        y ^= (y << 7) & 0x9d2c5680L 
-        y ^= (y << 15) & 0xefc60000L 
+        y ^= (y << 7) & 0x9d2c5680 
+        y ^= (y << 15) & 0xefc60000 
         y ^= (y >> 18)
 
         return y
