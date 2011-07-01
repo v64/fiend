@@ -330,11 +330,7 @@ class Fiend(object):
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
-            numLettersPlayed, blanks, passedTurn = self._updateBoard(move)
-
-            for i in [0, 1]:
-                if blanks[i]:
-                    self._blanks[i] = blanks[i]
+            numLettersPlayed, passedTurn = self._updateBoard(move)
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
@@ -384,7 +380,6 @@ class Fiend(object):
 
         def _updateBoard(self, move):
             numLettersPlayed = 0
-            blanks = [None, None]
             passedTurn = False
 
             if move.fromX <= 14:
@@ -396,6 +391,8 @@ class Fiend(object):
                     moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
                 else:
                     moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
+
+                blanks = [None, None]
 
                 for i, (x,y) in enumerate(moveCoords):
                     if move.textCodes[i] == '*':
@@ -420,6 +417,10 @@ class Fiend(object):
                 self.board = workingBoard
                 self.boardChecksum = workingBoardChecksum
 
+                for i in [0, 1]:
+                    if blanks[i]:
+                        self._blanks[i] = blanks[i]
+
             else:
                 # Out of bounds fromX is used to signify a pass or letter exchange
                 numLettersPlayed = len(move.textCodes)
@@ -430,7 +431,7 @@ class Fiend(object):
                 if move.fromX == 99 or move.fromX == 100:
                     self.gameOver = True
 
-            return (numLettersPlayed, blanks, passedTurn)
+            return (numLettersPlayed, passedTurn)
 
         def _drawFromLetterBag(self, num, random=None, letterBagCodes=None):
             if random is None:
