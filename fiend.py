@@ -256,13 +256,17 @@ class Fiend(object):
 
         @property
         def boardGrid(self):
-            board = '   ' + ('+---'*15) + '+\n'
+            boldLetter = '\033[1;31m'
+            outline = '\033[0;37m'
+            reset = '\033[0;0m'
+            
+            board = outline + '   ' + ('+---'*15) + '+\n' + reset
 
             for y in range(15):
                 if 14 - y < 10:
                     board += ' '
 
-                board += str(14 - y) + ' |'
+                board += str(14 - y) + ' ' + outline + '|' + reset
 
                 for x in range(15):
                     board += ' '
@@ -273,13 +277,22 @@ class Fiend(object):
                         else:
                             board += BONUS_SQUARES[x][y]
                     elif self.board[x][y] == 0 or self.board[x][y] == 1:
-                        board += self._blanks[self.board[x][y]]
+                        board += boldLetter + self._blanks[self.board[x][y]] + reset
                     else:
-                        board += LETTER_MAP[self.board[x][y]]
+                        board += boldLetter + LETTER_MAP[self.board[x][y]] + reset
 
-                    board += ' |'
+                    board += ' ' + outline + '|' + reset
 
-                board += '\n   ' + ('+---'*15) + '+\n'
+                if y == 0:
+                    board += '    ' + TRIPLE_WORD + ' Triple Word'
+                elif y == 1:
+                    board += '    ' + TRIPLE_LETTER + ' Triple Letter'
+                elif y == 2:
+                    board += '    ' + DOUBLE_WORD + ' Double Word'
+                elif y == 3:
+                    board += '    ' + DOUBLE_LETTER + ' Double Letter'
+
+                board += outline + '\n   ' + ('+---'*15) + '+\n' + reset
 
             board += '     ' + '   '.join([str(x) for x in range(10)])
             board += '   ' + '  '.join([str(x) for x in range(10,15)])
