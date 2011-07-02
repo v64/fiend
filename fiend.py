@@ -63,6 +63,15 @@ LETTER_MAP = ['', '',
               'X', 
               'Z'] 
 
+LETTER_VALUES = {
+    '':  0,  'A': 1, 'B': 4,  'C': 4, 'D': 2,
+    'E': 1,  'F': 4, 'G': 3,  'H': 3, 'I': 1,
+    'J': 10, 'K': 5, 'L': 2,  'M': 4, 'N': 2,
+    'O': 1,  'P': 4, 'Q': 10, 'R': 1, 'S': 1,
+    'T': 1,  'U': 2, 'V': 5,  'W': 4, 'X': 8,
+    'Y': 3,  'Z': 10,
+}
+
 TRIPLE_WORD = '$'
 TRIPLE_LETTER = '!'
 DOUBLE_WORD = '='
@@ -343,11 +352,12 @@ class Fiend(object):
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
-            numLettersPlayed, passedTurn = self._updateBoard(move)
+            numLettersPlayed, wordPoints, passedTurn = self._updateBoard(move)
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
             currentPlayer.rack.extend(self._drawFromLetterBag(numLettersPlayed))
+            currentPlayer.score += wordPoints
 
             for tile in [a for a in move.textCodes if a != '*']:
                 currentPlayer.rack.remove(tile)
@@ -393,9 +403,12 @@ class Fiend(object):
 
         def _updateBoard(self, move):
             numLettersPlayed = 0
+            wordPoints = 0
             passedTurn = False
 
             if move.fromX <= 14:
+                scoreMultiplier = 1
+
                 # Make a copy of the board so that if any exceptions are raised,
                 # then the actual board isn't corrupted.
                 workingBoard = copy.deepcopy(self.board)
@@ -409,6 +422,7 @@ class Fiend(object):
 
                 for i, (x,y) in enumerate(moveCoords):
                     if move.textCodes[i] == '*':
+                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][y]]]
                         continue
 
                     if workingBoard[x][y] != -1:
@@ -417,8 +431,26 @@ class Fiend(object):
                     workingBoard[x][y] = move.textCodes[i]
                     numLettersPlayed += 1
 
+                    letterValue = 0
+                    if BONUS_SQUARES[x][y] == DOUBLE_LETTER:
+                        letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 2
+                        wordPoints += letterValue
+                    elif BONUS_SQUARES[x][y] == TRIPLE_LETTER:
+                        letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 3
+                        wordPoints += letterValue
+                    else:
+                        letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]]
+                        wordPoints += letterValue
+
+                    if BONUS_SQUARES[x][y] == DOUBLE_WORD:
+                        scoreMultiplier *= 2
+                    elif BONUS_SQUARES[x][y] == TRIPLE_WORD:
+                        scoreMultiplier *= 3
+
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
+
+                wordPoints *= scoreMultiplier
 
                 workingBoardChecksum = self._calculateBoardChecksum(workingBoard)
                 if move.boardChecksum is None:
@@ -444,7 +476,7 @@ class Fiend(object):
                 if move.fromX == 99 or move.fromX == 100:
                     self.gameOver = True
 
-            return (numLettersPlayed, passedTurn)
+            return (numLettersPlayed, wordPoints, passedTurn)
 
         def _drawFromLetterBag(self, num, random=None, letterBagCodes=None):
             if random is None:
@@ -509,6 +541,7 @@ class Fiend(object):
             self.creator = False
 
             self.rack = None
+            self.score = 0
         
         def setWithXml(self, xmlElem):
             self.id = int(xmlElem.findtext('id'))
