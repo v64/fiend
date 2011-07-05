@@ -404,6 +404,7 @@ class Fiend(object):
         def _updateBoard(self, move):
             numLettersPlayed = 0
             wordPoints = 0
+            discoveredPoints = 0
             passedTurn = False
 
             if move.fromX <= 14:
@@ -446,12 +447,15 @@ class Fiend(object):
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]]
                         wordPoints += letterValue
 
+                    multOnLetter = False
                     if BONUS_SQUARES[x][y] == DOUBLE_WORD:
                         print 'DW:', LETTER_MAP[workingBoard[x][y]]
                         scoreMultiplier *= 2
+                        multOnLetter = True
                     elif BONUS_SQUARES[x][y] == TRIPLE_WORD:
                         print 'TW:', LETTER_MAP[workingBoard[x][y]]
                         scoreMultiplier *= 3
+                        multOnLetter = True
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
@@ -463,42 +467,82 @@ class Fiend(object):
                             if workingBoard[j][y] == -1:
                                 break
 
-                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
-                            print 'V-', wordPoints
+                            if multOnLetter:
+                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
+                            else:
+                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
+
                             if not countedLetter:
-                                wordPoints += letterValue
+                                if multOnLetter:
+                                    wordPoints += letterValue
+                                else:
+                                    discoveredPoints += letterValue
+
                                 countedLetter = True
+
+                            print 'V-W', wordPoints
+                            print 'V-D', discoveredPoints
 
                         for j in range(x+1, 15):
                             if workingBoard[j][y] == -1:
                                 break
 
-                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
-                            print 'V+', wordPoints
+                            if multOnLetter:
+                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
+                            else:
+                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
+
                             if not countedLetter:
-                                wordPoints += letterValue
+                                if multOnLetter:
+                                    wordPoints += letterValue
+                                else:
+                                    discoveredPoints += letterValue
+
                                 countedLetter = True
+
+                            print 'V+W', wordPoints
+                            print 'V+D', discoveredPoints
 
                     elif direction == 'H':
                         for j in range(y-1, -1, -1):
                             if workingBoard[x][j] == -1:
                                 break
 
-                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
-                            print 'H-', wordPoints
+                            if multOnLetter:
+                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
+                            else:
+                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
+
                             if not countedLetter:
-                                wordPoints += letterValue
+                                if multOnLetter:
+                                    wordPoints += letterValue
+                                else:
+                                    discoveredPoints += letterValue
+
                                 countedLetter = True
+
+                            print 'H-W', wordPoints
+                            print 'H-D', discoveredPoints
 
                         for j in range(y+1, 15):
                             if workingBoard[x][j] == -1:
                                 break
 
-                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
-                            print 'H+', wordPoints
+                            if multOnLetter:
+                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
+                            else:
+                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
+
                             if not countedLetter:
-                                wordPoints += letterValue
+                                if multOnLetter:
+                                    wordPoints += letterValue
+                                else:
+                                    discoveredPoints += letterValue
+
                                 countedLetter = True
+
+                            print 'H+W', wordPoints
+                            print 'H+D', discoveredPoints
 
                 if direction == 'V':
                     for j in range(move.fromY - 1, -1, -1):
@@ -531,6 +575,7 @@ class Fiend(object):
                         print 'EXT H+', wordPoints
 
                 wordPoints *= scoreMultiplier
+                wordPoints += discoveredPoints
                 print move.textWord
                 print wordPoints
 
