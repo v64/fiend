@@ -415,8 +415,10 @@ class Fiend(object):
 
                 if move.fromX == move.toX:
                     moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
+                    direction = 'V'
                 else:
                     moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
+                    direction = 'H'
 
                 blanks = [None, None]
 
@@ -433,9 +435,11 @@ class Fiend(object):
 
                     letterValue = 0
                     if BONUS_SQUARES[x][y] == DOUBLE_LETTER:
+                        print 'DL:', LETTER_MAP[workingBoard[x][y]]
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 2
                         wordPoints += letterValue
                     elif BONUS_SQUARES[x][y] == TRIPLE_LETTER:
+                        print 'TL:', LETTER_MAP[workingBoard[x][y]]
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 3
                         wordPoints += letterValue
                     else:
@@ -443,14 +447,92 @@ class Fiend(object):
                         wordPoints += letterValue
 
                     if BONUS_SQUARES[x][y] == DOUBLE_WORD:
+                        print 'DW:', LETTER_MAP[workingBoard[x][y]]
                         scoreMultiplier *= 2
                     elif BONUS_SQUARES[x][y] == TRIPLE_WORD:
+                        print 'TW:', LETTER_MAP[workingBoard[x][y]]
                         scoreMultiplier *= 3
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
+                    countedLetter = False
+
+                    if direction == 'V':
+                        for j in range(x-1, -1, -1):
+                            if workingBoard[j][y] == -1:
+                                break
+
+                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
+                            print 'V-', wordPoints
+                            if not countedLetter:
+                                wordPoints += letterValue
+                                countedLetter = True
+
+                        for j in range(x+1, 15):
+                            if workingBoard[j][y] == -1:
+                                break
+
+                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
+                            print 'V+', wordPoints
+                            if not countedLetter:
+                                wordPoints += letterValue
+                                countedLetter = True
+
+                    elif direction == 'H':
+                        for j in range(y-1, -1, -1):
+                            if workingBoard[x][j] == -1:
+                                break
+
+                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
+                            print 'H-', wordPoints
+                            if not countedLetter:
+                                wordPoints += letterValue
+                                countedLetter = True
+
+                        for j in range(y+1, 15):
+                            if workingBoard[x][j] == -1:
+                                break
+
+                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
+                            print 'H+', wordPoints
+                            if not countedLetter:
+                                wordPoints += letterValue
+                                countedLetter = True
+
+                if direction == 'V':
+                    for j in range(move.fromY - 1, -1, -1):
+                        if workingBoard[move.fromX][j] == -1:
+                            break
+
+                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
+                        print 'EXT V-', wordPoints
+
+                    for j in range(move.toY + 1, 15):
+                        if workingBoard[move.toX][j] == -1:
+                            break
+
+                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
+                        print 'EXT V+', wordPoints
+
+                elif direction == 'H':
+                    for j in range(move.fromX - 1, -1, -1):
+                        if workingBoard[j][move.fromY] == -1:
+                            break
+
+                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
+                        print 'EXT H-', wordPoints
+
+                    for j in range(move.toX + 1, 15):
+                        if workingBoard[j][move.toY] == -1:
+                            break
+
+                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
+                        print 'EXT H+', wordPoints
+
                 wordPoints *= scoreMultiplier
+                print move.textWord
+                print wordPoints
 
                 workingBoardChecksum = self._calculateBoardChecksum(workingBoard)
                 if move.boardChecksum is None:
