@@ -425,17 +425,34 @@ class Fiend(object):
             passedTurn = False
 
             if move.fromX <= 14:
+                print move.textWord
+
                 scoreMultiplier = 1
 
                 # Make a copy of the board so that if any exceptions are raised,
                 # then the actual board isn't corrupted.
                 workingBoard = copy.deepcopy(self.board)
 
-                # Fix single letter play problem
-
                 if move.fromX == move.toX:
-                    moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
-                    direction = 'V'
+                    if move.fromY != move.toY:
+                        moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
+                        direction = 'V'
+                    else:
+                        moveCoords = [(move.fromX, move.toY)]
+                        try:
+                            above = workingBoard[move.fromX][move.toY+1]
+                        except:
+                            above = -1
+
+                        try:
+                            below = workingBoard[move.fromX][move.toY-1]
+                        except:
+                            below = -1
+
+                        if above == -1 and below == -1:
+                            direction = 'H'
+                        else:
+                            direction = 'V'
                 else:
                     moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
                     direction = 'H'
@@ -595,8 +612,8 @@ class Fiend(object):
 
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
-                print move.textWord
-                print wordPoints
+                print 'FINAL:', wordPoints
+                print
 
                 workingBoardChecksum = self._calculateBoardChecksum(workingBoard)
                 if move.boardChecksum is None:
