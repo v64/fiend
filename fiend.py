@@ -30,6 +30,9 @@ DEVICE_ID = 'ADR6300'
 # Main URL for all server requests.
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
+GAME_OVER_BY_NO_PLAY = 99
+GAME_OVER_BY_WIN = 100
+
 # Letter distribution:
 # A-9 B-2 C-2 D-5 E-13 F-2 G-3 H-4 I-8 J-1 K-1 L-4 M-2
 # N-5 O-8 P-2 Q-1 R-6  S-5 T-7 U-4 V-2 W-2 X-1 Y-2 Z-1
@@ -365,6 +368,20 @@ class Fiend(object):
                 if passedTurn:
                     self.letterBagCodes.append(tile)
 
+            if move.fromX == GAME_OVER_BY_WIN:
+                if self.creator.id == move.toX:
+                    winner = self.creator
+                    loser = self.opponent
+                else:
+                    winner = self.opponent
+                    loser = self.creator
+
+                pointExchange = 0
+                for tile in loser.rack:
+                    pointExchange += LETTER_VALUES[LETTER_MAP[tile]]
+                loser.score -= pointExchange
+                winner.score += pointExchange
+
             move.game = self
             self.moves.append(move)
 
@@ -413,6 +430,8 @@ class Fiend(object):
                 # Make a copy of the board so that if any exceptions are raised,
                 # then the actual board isn't corrupted.
                 workingBoard = copy.deepcopy(self.board)
+
+                # Fix single letter play problem
 
                 if move.fromX == move.toX:
                     moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
@@ -600,8 +619,10 @@ class Fiend(object):
 
                 # Either a player won or the game ended due to someone not taking their
                 # turn in a given amount of time.
-                if move.fromX == 99 or move.fromX == 100:
-                    self.gameOver = True
+                if move.fromX == GAME_OVER_BY_NO_PLAY:
+                    self.gameOver = GAME_OVER_BY_NO_PLAY
+                elif move.fromX == GAME_OVER_BY_WIN:
+                    self.gameOver = GAME_OVER_BY_WIN
 
             return (numLettersPlayed, wordPoints, passedTurn)
 
