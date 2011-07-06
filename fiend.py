@@ -425,6 +425,8 @@ class Fiend(object):
             passedTurn = False
 
             if move.fromX <= 14:
+                currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
+                print currentPlayer.name
                 print move.textWord
 
                 scoreMultiplier = 1
@@ -586,14 +588,14 @@ class Fiend(object):
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
-                        print 'EXT V-', wordPoints
+                        print 'EXT V-', LETTER_MAP[workingBoard[move.fromX][j]], wordPoints
 
                     for j in range(move.toY + 1, 15):
                         if workingBoard[move.toX][j] == -1:
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
-                        print 'EXT V+', wordPoints
+                        print 'EXT V+', LETTER_MAP[workingBoard[move.fromX][j]], wordPoints
 
                 elif direction == 'H':
                     for j in range(move.fromX - 1, -1, -1):
@@ -601,14 +603,14 @@ class Fiend(object):
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
-                        print 'EXT H-', wordPoints
+                        print 'EXT H-', LETTER_MAP[workingBoard[j][move.fromY]], wordPoints
 
                     for j in range(move.toX + 1, 15):
                         if workingBoard[j][move.toY] == -1:
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
-                        print 'EXT H+', wordPoints
+                        print 'EXT H+', LETTER_MAP[workingBoard[j][move.fromY]], wordPoints
 
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
@@ -638,8 +640,12 @@ class Fiend(object):
                 # turn in a given amount of time.
                 if move.fromX == GAME_OVER_BY_NO_PLAY:
                     self.gameOver = GAME_OVER_BY_NO_PLAY
+                    print 'GAME OVER'
+                    print
                 elif move.fromX == GAME_OVER_BY_WIN:
                     self.gameOver = GAME_OVER_BY_WIN
+                    print 'GAME OVER'
+                    print
 
             return (numLettersPlayed, wordPoints, passedTurn)
 
