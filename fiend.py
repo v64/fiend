@@ -424,45 +424,53 @@ class Fiend(object):
             discoveredPoints = 0
             passedTurn = False
 
-            if move.fromX <= 14:
-                scoreMultiplier = 1
+            if move.fromX > 14:
+                # Out of bounds fromX is used to signify a pass or letter exchange
+                numLettersPlayed = len(move.textCodes)
+                passedTurn = True
 
+                # Either a player won or the game ended due to someone not taking their
+                # turn in a given amount of time.
+                if move.fromX == GAME_OVER_BY_NO_PLAY or move.fromX == GAME_OVER_BY_WIN:
+                    self.gameOver = move.fromX
+
+            else:
                 # Make a copy of the board so that if any exceptions are raised,
                 # then the actual board isn't corrupted.
                 workingBoard = copy.deepcopy(self.board)
 
-                # Special case for one letter plays
                 if move.fromX == move.toX and move.fromY == move.toY:
-                    moveCoords = [(move.fromX, move.toY)]
+                    # Special case for one letter plays
                     try:
                         above = workingBoard[move.fromX][move.toY+1]
-                    except:
+                    except IndexError:
                         above = -1
 
                     try:
                         below = workingBoard[move.fromX][move.toY-1]
-                    except:
+                    except IndexError:
                         below = -1
 
-                    if above == -1 and below == -1:
-                        direction = 'H'
-                    else:
+                    if above != -1 or below != -1:
                         direction = 'V'
+                    else:
+                        direction = 'H'
                 elif move.fromX == move.toX:
                     direction = 'V'
                 else:
                     direction = 'H'
 
-                if direction == 'H':
-                    moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
-                    extendCoordsLeft = [(j, move.fromY) for j in range(move.fromX -1, -1, -1)]
-                    extendCoordsRight = [(j, move.toY) for j in range(move.toX + 1, 15)]
-                elif direction == 'V':
+                if direction == 'V':
                     moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
                     extendCoordsLeft = [(move.fromX, j) for j in range(move.fromY - 1, -1, -1)]
                     extendCoordsRight = [(move.toX, j) for j in range(move.toY + 1, 15)]
+                elif direction == 'H':
+                    moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
+                    extendCoordsLeft = [(j, move.fromY) for j in range(move.fromX -1, -1, -1)]
+                    extendCoordsRight = [(j, move.toY) for j in range(move.toX + 1, 15)]
 
                 blanks = [None, None]
+                scoreMultiplier = 1
 
                 for i, (x,y) in enumerate(moveCoords):
                     if move.textCodes[i] == '*':
@@ -471,6 +479,9 @@ class Fiend(object):
 
                     if workingBoard[x][y] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
+
+                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
                     workingBoard[x][y] = move.textCodes[i]
                     numLettersPlayed += 1
@@ -493,62 +504,38 @@ class Fiend(object):
                     else:
                         multOnLetter = False
 
-                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
-
                     if direction == 'V':
                         checkCoordsLeft = [(j, y) for j in range(x-1, -1, -1)]
                         checkCoordsRight = [(j, y) for j in range(x+1, 15)]
-                    else:
+                    elif direction == 'H':
                         checkCoordsLeft = [(x, j) for j in range(y-1, -1, -1)]
                         checkCoordsRight = [(x, j) for j in range(y+1, 15)]
 
                     countedLetter = False
-                    for (j,k) in checkCoordsLeft:
+                    for coords in [checkCoordsLeft, checkCoordsRight]:
+                        for (j,k) in coords:
+                            if workingBoard[j][k] == -1:
+                                break
+
+                            if multOnLetter:
+                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+                            else:
+                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+
+                            if not countedLetter:
+                                if multOnLetter:
+                                    wordPoints += letterValue
+                                else:
+                                    discoveredPoints += letterValue
+
+                                countedLetter = True
+
+                for coords in [extendCoordsLeft, extendCoordsRight]:
+                    for (j,k) in coords:
                         if workingBoard[j][k] == -1:
                             break
 
-                        if multOnLetter:
-                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
-                        else:
-                            discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
-
-                        if not countedLetter:
-                            if multOnLetter:
-                                wordPoints += letterValue
-                            else:
-                                discoveredPoints += letterValue
-
-                            countedLetter = True
-
-                    for (j,k) in checkCoordsRight:
-                        if workingBoard[j][k] == -1:
-                            break
-
-                        if multOnLetter:
-                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
-                        else:
-                            discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
-
-                        if not countedLetter:
-                            if multOnLetter:
-                                wordPoints += letterValue
-                            else:
-                                discoveredPoints += letterValue
-
-                            countedLetter = True
-
-                for (j,k) in extendCoordsLeft:
-                    if workingBoard[j][k] == -1:
-                        break
-
-                    wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
-
-                for (j,k) in extendCoordsRight:
-                    if workingBoard[j][k] == -1:
-                        break
-
-                    wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
 
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
@@ -566,18 +553,6 @@ class Fiend(object):
                 for i in [0, 1]:
                     if blanks[i]:
                         self._blanks[i] = blanks[i]
-
-            else:
-                # Out of bounds fromX is used to signify a pass or letter exchange
-                numLettersPlayed = len(move.textCodes)
-                passedTurn = True
-
-                # Either a player won or the game ended due to someone not taking their
-                # turn in a given amount of time.
-                if move.fromX == GAME_OVER_BY_NO_PLAY:
-                    self.gameOver = GAME_OVER_BY_NO_PLAY
-                elif move.fromX == GAME_OVER_BY_WIN:
-                    self.gameOver = GAME_OVER_BY_WIN
 
             return (numLettersPlayed, wordPoints, passedTurn)
 
