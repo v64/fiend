@@ -421,8 +421,9 @@ class Fiend(object):
         def _updateBoard(self, move):
             numLettersPlayed = 0
             wordPoints = 0
-            discoveredPoints = 0
             passedTurn = False
+
+            discoveredPoints = 0
 
             if move.fromX > 14:
                 # Out of bounds fromX is used to signify a pass or letter exchange
