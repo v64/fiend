@@ -423,8 +423,6 @@ class Fiend(object):
             wordPoints = 0
             passedTurn = False
 
-            discoveredPoints = 0
-
             if move.fromX > 14:
                 # Out of bounds fromX is used to signify a pass or letter exchange
                 numLettersPlayed = len(move.textCodes)
@@ -472,6 +470,7 @@ class Fiend(object):
 
                 blanks = [None, None]
                 scoreMultiplier = 1
+                discoveredPoints = 0
 
                 for i, (x,y) in enumerate(moveCoords):
                     if move.textCodes[i] == '*':
