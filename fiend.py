@@ -426,8 +426,6 @@ class Fiend(object):
 
             if move.fromX <= 14:
                 currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
-                print currentPlayer.name
-                print move.textWord
 
                 scoreMultiplier = 1
 
@@ -474,11 +472,9 @@ class Fiend(object):
 
                     letterValue = 0
                     if BONUS_SQUARES[x][y] == DOUBLE_LETTER:
-                        print 'DL:', LETTER_MAP[workingBoard[x][y]]
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 2
                         wordPoints += letterValue
                     elif BONUS_SQUARES[x][y] == TRIPLE_LETTER:
-                        print 'TL:', LETTER_MAP[workingBoard[x][y]]
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 3
                         wordPoints += letterValue
                     else:
@@ -487,11 +483,9 @@ class Fiend(object):
 
                     multOnLetter = False
                     if BONUS_SQUARES[x][y] == DOUBLE_WORD:
-                        print 'DW:', LETTER_MAP[workingBoard[x][y]]
                         scoreMultiplier *= 2
                         multOnLetter = True
                     elif BONUS_SQUARES[x][y] == TRIPLE_WORD:
-                        print 'TW:', LETTER_MAP[workingBoard[x][y]]
                         scoreMultiplier *= 3
                         multOnLetter = True
 
@@ -518,9 +512,6 @@ class Fiend(object):
 
                                 countedLetter = True
 
-                            print 'V-W', wordPoints
-                            print 'V-D', discoveredPoints
-
                         for j in range(x+1, 15):
                             if workingBoard[j][y] == -1:
                                 break
@@ -537,9 +528,6 @@ class Fiend(object):
                                     discoveredPoints += letterValue
 
                                 countedLetter = True
-
-                            print 'V+W', wordPoints
-                            print 'V+D', discoveredPoints
 
                     elif direction == 'H':
                         for j in range(y-1, -1, -1):
@@ -559,9 +547,6 @@ class Fiend(object):
 
                                 countedLetter = True
 
-                            print 'H-W', wordPoints
-                            print 'H-D', discoveredPoints
-
                         for j in range(y+1, 15):
                             if workingBoard[x][j] == -1:
                                 break
@@ -579,23 +564,18 @@ class Fiend(object):
 
                                 countedLetter = True
 
-                            print 'H+W', wordPoints
-                            print 'H+D', discoveredPoints
-
                 if direction == 'V':
                     for j in range(move.fromY - 1, -1, -1):
                         if workingBoard[move.fromX][j] == -1:
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
-                        print 'EXT V-', LETTER_MAP[workingBoard[move.fromX][j]], wordPoints
 
                     for j in range(move.toY + 1, 15):
                         if workingBoard[move.toX][j] == -1:
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
-                        print 'EXT V+', LETTER_MAP[workingBoard[move.fromX][j]], wordPoints
 
                 elif direction == 'H':
                     for j in range(move.fromX - 1, -1, -1):
@@ -603,19 +583,15 @@ class Fiend(object):
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
-                        print 'EXT H-', LETTER_MAP[workingBoard[j][move.fromY]], wordPoints
 
                     for j in range(move.toX + 1, 15):
                         if workingBoard[j][move.toY] == -1:
                             break
 
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
-                        print 'EXT H+', LETTER_MAP[workingBoard[j][move.fromY]], wordPoints
 
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
-                print 'FINAL:', wordPoints
-                print
 
                 workingBoardChecksum = self._calculateBoardChecksum(workingBoard)
                 if move.boardChecksum is None:
@@ -640,12 +616,8 @@ class Fiend(object):
                 # turn in a given amount of time.
                 if move.fromX == GAME_OVER_BY_NO_PLAY:
                     self.gameOver = GAME_OVER_BY_NO_PLAY
-                    print 'GAME OVER'
-                    print
                 elif move.fromX == GAME_OVER_BY_WIN:
                     self.gameOver = GAME_OVER_BY_WIN
-                    print 'GAME OVER'
-                    print
 
             return (numLettersPlayed, wordPoints, passedTurn)
 
