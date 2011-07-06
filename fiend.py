@@ -372,18 +372,18 @@ class Fiend(object):
                     self.letterBagCodes.append(tile)
 
             if move.fromX == GAME_OVER_BY_WIN:
-                if self.creator.id == move.toX:
-                    winner = self.creator
-                    loser = self.opponent
+                if len(self.creator.rack) == 0:
+                    giver = self.opponent
+                    receiver = self.creator
                 else:
-                    winner = self.opponent
-                    loser = self.creator
+                    giver = self.creator
+                    receiver = self.opponent
 
                 pointExchange = 0
-                for tile in loser.rack:
+                for tile in giver.rack:
                     pointExchange += LETTER_VALUES[LETTER_MAP[tile]]
-                loser.score -= pointExchange
-                winner.score += pointExchange
+                giver.score -= pointExchange
+                receiver.score += pointExchange
 
             move.game = self
             self.moves.append(move)
