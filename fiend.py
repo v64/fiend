@@ -425,37 +425,42 @@ class Fiend(object):
             passedTurn = False
 
             if move.fromX <= 14:
-                currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
-
                 scoreMultiplier = 1
 
                 # Make a copy of the board so that if any exceptions are raised,
                 # then the actual board isn't corrupted.
                 workingBoard = copy.deepcopy(self.board)
 
-                if move.fromX == move.toX:
-                    if move.fromY != move.toY:
-                        moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
-                        direction = 'V'
+                # Special case for one letter plays
+                if move.fromX == move.toX and move.fromY == move.toY:
+                    moveCoords = [(move.fromX, move.toY)]
+                    try:
+                        above = workingBoard[move.fromX][move.toY+1]
+                    except:
+                        above = -1
+
+                    try:
+                        below = workingBoard[move.fromX][move.toY-1]
+                    except:
+                        below = -1
+
+                    if above == -1 and below == -1:
+                        direction = 'H'
                     else:
-                        moveCoords = [(move.fromX, move.toY)]
-                        try:
-                            above = workingBoard[move.fromX][move.toY+1]
-                        except:
-                            above = -1
-
-                        try:
-                            below = workingBoard[move.fromX][move.toY-1]
-                        except:
-                            below = -1
-
-                        if above == -1 and below == -1:
-                            direction = 'H'
-                        else:
-                            direction = 'V'
+                        direction = 'V'
+                elif move.fromX == move.toX:
+                    direction = 'V'
                 else:
-                    moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
                     direction = 'H'
+
+                if direction == 'H':
+                    moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
+                    extendCoordsLeft = [(j, move.fromY) for j in range(move.fromX -1, -1, -1)]
+                    extendCoordsRight = [(j, move.toY) for j in range(move.toX + 1, 15)]
+                elif direction == 'V':
+                    moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
+                    extendCoordsLeft = [(move.fromX, j) for j in range(move.fromY - 1, -1, -1)]
+                    extendCoordsRight = [(move.toX, j) for j in range(move.toY + 1, 15)]
 
                 blanks = [None, None]
 
@@ -470,125 +475,80 @@ class Fiend(object):
                     workingBoard[x][y] = move.textCodes[i]
                     numLettersPlayed += 1
 
-                    letterValue = 0
                     if BONUS_SQUARES[x][y] == DOUBLE_LETTER:
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 2
-                        wordPoints += letterValue
                     elif BONUS_SQUARES[x][y] == TRIPLE_LETTER:
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 3
-                        wordPoints += letterValue
                     else:
                         letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]]
-                        wordPoints += letterValue
 
-                    multOnLetter = False
+                    wordPoints += letterValue
+
                     if BONUS_SQUARES[x][y] == DOUBLE_WORD:
                         scoreMultiplier *= 2
                         multOnLetter = True
                     elif BONUS_SQUARES[x][y] == TRIPLE_WORD:
                         scoreMultiplier *= 3
                         multOnLetter = True
+                    else:
+                        multOnLetter = False
 
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
-                    countedLetter = False
-
                     if direction == 'V':
-                        for j in range(x-1, -1, -1):
-                            if workingBoard[j][y] == -1:
-                                break
+                        checkCoordsLeft = [(j, y) for j in range(x-1, -1, -1)]
+                        checkCoordsRight = [(j, y) for j in range(x+1, 15)]
+                    else:
+                        checkCoordsLeft = [(x, j) for j in range(y-1, -1, -1)]
+                        checkCoordsRight = [(x, j) for j in range(y+1, 15)]
 
-                            if multOnLetter:
-                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
-                            else:
-                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
-
-                            if not countedLetter:
-                                if multOnLetter:
-                                    wordPoints += letterValue
-                                else:
-                                    discoveredPoints += letterValue
-
-                                countedLetter = True
-
-                        for j in range(x+1, 15):
-                            if workingBoard[j][y] == -1:
-                                break
-
-                            if multOnLetter:
-                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
-                            else:
-                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][y]]]
-
-                            if not countedLetter:
-                                if multOnLetter:
-                                    wordPoints += letterValue
-                                else:
-                                    discoveredPoints += letterValue
-
-                                countedLetter = True
-
-                    elif direction == 'H':
-                        for j in range(y-1, -1, -1):
-                            if workingBoard[x][j] == -1:
-                                break
-
-                            if multOnLetter:
-                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
-                            else:
-                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
-
-                            if not countedLetter:
-                                if multOnLetter:
-                                    wordPoints += letterValue
-                                else:
-                                    discoveredPoints += letterValue
-
-                                countedLetter = True
-
-                        for j in range(y+1, 15):
-                            if workingBoard[x][j] == -1:
-                                break
-
-                            if multOnLetter:
-                                wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
-                            else:
-                                discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][j]]]
-
-                            if not countedLetter:
-                                if multOnLetter:
-                                    wordPoints += letterValue
-                                else:
-                                    discoveredPoints += letterValue
-
-                                countedLetter = True
-
-                if direction == 'V':
-                    for j in range(move.fromY - 1, -1, -1):
-                        if workingBoard[move.fromX][j] == -1:
+                    countedLetter = False
+                    for (j,k) in checkCoordsLeft:
+                        if workingBoard[j][k] == -1:
                             break
 
-                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
+                        if multOnLetter:
+                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+                        else:
+                            discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
 
-                    for j in range(move.toY + 1, 15):
-                        if workingBoard[move.toX][j] == -1:
+                        if not countedLetter:
+                            if multOnLetter:
+                                wordPoints += letterValue
+                            else:
+                                discoveredPoints += letterValue
+
+                            countedLetter = True
+
+                    for (j,k) in checkCoordsRight:
+                        if workingBoard[j][k] == -1:
                             break
 
-                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[move.fromX][j]]]
+                        if multOnLetter:
+                            wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+                        else:
+                            discoveredPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
 
-                elif direction == 'H':
-                    for j in range(move.fromX - 1, -1, -1):
-                        if workingBoard[j][move.fromY] == -1:
-                            break
+                        if not countedLetter:
+                            if multOnLetter:
+                                wordPoints += letterValue
+                            else:
+                                discoveredPoints += letterValue
 
-                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
+                            countedLetter = True
 
-                    for j in range(move.toX + 1, 15):
-                        if workingBoard[j][move.toY] == -1:
-                            break
+                for (j,k) in extendCoordsLeft:
+                    if workingBoard[j][k] == -1:
+                        break
 
-                        wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][move.fromY]]]
+                    wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+
+                for (j,k) in extendCoordsRight:
+                    if workingBoard[j][k] == -1:
+                        break
+
+                    wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
 
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
