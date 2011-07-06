@@ -359,6 +359,9 @@ class Fiend(object):
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
+            if numLettersPlayed == 7:
+                currentPlayer.score += 35
+
             currentPlayer.rack.extend(self._drawFromLetterBag(numLettersPlayed))
             currentPlayer.score += wordPoints
 
