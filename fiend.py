@@ -359,11 +359,8 @@ class Fiend(object):
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
-            if numLettersPlayed == 7:
-                currentPlayer.score += 35
-
-            currentPlayer.rack.extend(self._drawFromLetterBag(numLettersPlayed))
             currentPlayer.score += wordPoints
+            currentPlayer.rack.extend(self._drawFromLetterBag(numLettersPlayed))
 
             for tile in [a for a in move.textCodes if a != '*']:
                 currentPlayer.rack.remove(tile)
@@ -385,6 +382,7 @@ class Fiend(object):
                 giver.score -= pointExchange
                 receiver.score += pointExchange
 
+            move.score = wordPoints
             move.game = self
             self.moves.append(move)
 
@@ -543,6 +541,9 @@ class Fiend(object):
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
 
+                if numLettersPlayed == 7:
+                    wordPoints += 35
+
                 workingBoardChecksum = self._calculateBoardChecksum(workingBoard)
                 if move.boardChecksum is None:
                     move.boardChecksum = workingBoardChecksum
@@ -647,6 +648,8 @@ class Fiend(object):
             self.createdAt = None
             self.promoted = None
             self.boardChecksum = None
+
+            self.score = None
 
             self._textWord = None
             self._textCodes = None
