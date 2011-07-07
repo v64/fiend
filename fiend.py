@@ -355,7 +355,7 @@ class Fiend(object):
             elif move.moveIndex != nextMoveIndex:
                 raise Fiend.MoveError("The moveIndex is not next in this game's sequence", move, self)
 
-            numLettersPlayed, wordPoints, passedTurn = self._updateBoard(move)
+            numLettersPlayed, wordPoints, wordsPlayed, passedTurn = self._updateBoard(move)
 
             currentPlayer = self.creator if move.userId == self.creator.id else self.opponent
 
@@ -383,6 +383,8 @@ class Fiend(object):
                 receiver.score += pointExchange
 
             move.score = wordPoints
+            move.words = wordsPlayed
+            move.player = currentPlayer
             move.game = self
             self.moves.append(move)
 
@@ -422,6 +424,7 @@ class Fiend(object):
         def _updateBoard(self, move):
             numLettersPlayed = 0
             wordPoints = 0
+            wordsPlayed = []
             passedTurn = False
 
             if move.fromX > 14:
@@ -469,20 +472,32 @@ class Fiend(object):
                     extendCoordsLeft = [(j, move.fromY) for j in range(move.fromX -1, -1, -1)]
                     extendCoordsRight = [(j, move.toY) for j in range(move.toX + 1, 15)]
 
-                blanks = [None, None]
                 scoreMultiplier = 1
                 discoveredPoints = 0
+                mainWord = ''
 
                 for i, (x,y) in enumerate(moveCoords):
                     if move.textCodes[i] == '*':
+                        if workingBoard[x][y] == 0 or workingBoard[x][y] == 1:
+                            addedLetter = self._blanks[workingBoard[x][y]]
+                        else:
+                            addedLetter = LETTER_MAP[workingBoard[x][y]]
+                        mainWord += addedLetter
+
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[x][y]]]
+
                         continue
+
+                    else:
+                        if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                            addedLetter = move._blanks[move.textCodes[i]]
+                        else:
+                            addedLetter = LETTER_MAP[move.textCodes[i]]
+
+                        mainWord += addedLetter
 
                     if workingBoard[x][y] != -1:
                         raise Fiend.MoveError('Move illegally overlaps an existing move', move, self)
-
-                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
-                        blanks[move.textCodes[i]] = move._blanks[move.textCodes[i]]
 
                     workingBoard[x][y] = move.textCodes[i]
                     numLettersPlayed += 1
@@ -513,10 +528,29 @@ class Fiend(object):
                         checkCoordsRight = [(x, j) for j in range(y+1, 15)]
 
                     countedLetter = False
+                    onCheckCoordsLeft = True
+
+                    if move.textCodes[i] == 0 or move.textCodes[i] == 1:
+                        auxWord = move._blanks[move.textCodes[i]]
+                    else:
+                        auxWord = LETTER_MAP[move.textCodes[i]]
+
                     for coords in [checkCoordsLeft, checkCoordsRight]:
                         for (j,k) in coords:
                             if workingBoard[j][k] == -1:
+                                if onCheckCoordsLeft:
+                                    onCheckCoordsLeft = False
                                 break
+
+                            if workingBoard[j][k] == 0 or workingBoard[j][k] == 1:
+                                addedLetter = self._blanks[workingBoard[j][k]]
+                            else:
+                                addedLetter = LETTER_MAP[workingBoard[j][k]]
+
+                            if onCheckCoordsLeft:
+                                auxWord = addedLetter + auxWord
+                            else:
+                                auxWord = auxWord + addedLetter
 
                             if multOnLetter:
                                 wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
@@ -530,13 +564,38 @@ class Fiend(object):
                                     discoveredPoints += letterValue
 
                                 countedLetter = True
+                        else:
+                            onCheckCoordsLeft = False
+
+                    if len(auxWord) > 1:
+                        wordsPlayed.append(auxWord)
+
+                onExtendCoordsLeft = True
 
                 for coords in [extendCoordsLeft, extendCoordsRight]:
                     for (j,k) in coords:
                         if workingBoard[j][k] == -1:
+                            if onExtendCoordsLeft:
+                                onExtendCoordsLeft = False
                             break
 
+                        if workingBoard[j][k] == 0 or workingBoard[j][k] == 1:
+                            addedLetter = self._blanks[workingBoard[j][k]]
+                        else:
+                            addedLetter = LETTER_MAP[workingBoard[j][k]]
+
+                        if onExtendCoordsLeft:
+                            mainWord = addedLetter + mainWord
+                        else:
+                            mainWord = mainWord + addedLetter
+
                         wordPoints += LETTER_VALUES[LETTER_MAP[workingBoard[j][k]]]
+                    else:
+                        onExtendCoordsLeft = False
+
+                if mainWord != '':
+                    # Put the main word at the front of the array
+                    wordsPlayed.insert(0, mainWord)
 
                 wordPoints *= scoreMultiplier
                 wordPoints += discoveredPoints
@@ -555,10 +614,10 @@ class Fiend(object):
                 self.boardChecksum = workingBoardChecksum
 
                 for i in [0, 1]:
-                    if blanks[i]:
-                        self._blanks[i] = blanks[i]
+                    if move._blanks[i]:
+                        self._blanks[i] = move._blanks[i]
 
-            return (numLettersPlayed, wordPoints, passedTurn)
+            return (numLettersPlayed, wordPoints, wordsPlayed, passedTurn)
 
         def _drawFromLetterBag(self, num, random=None, letterBagCodes=None):
             if random is None:
@@ -650,6 +709,8 @@ class Fiend(object):
             self.boardChecksum = None
 
             self.score = None
+            self.words = []
+            self.player = None
 
             self._textWord = None
             self._textCodes = None
