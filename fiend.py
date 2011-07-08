@@ -481,6 +481,11 @@ class Fiend(object):
                     extendCoordsLeft = [(j, move.fromY) for j in range(move.fromX -1, -1, -1)]
                     extendCoordsRight = [(j, move.toY) for j in range(move.toX + 1, 15)]
 
+                if move.promoted is None:
+                    move.promoted = promoted
+                elif move.promoted != promoted:
+                    raise Fiend.MoveError('Promoted value mismatch', move, self)
+
                 scoreMultiplier = 1
                 discoveredPoints = 0
                 mainWord = ''
@@ -617,11 +622,6 @@ class Fiend(object):
                     move.boardChecksum = workingBoardChecksum
                 elif move.boardChecksum != 0 and move.boardChecksum != workingBoardChecksum:
                     raise Fiend.MoveError('Board checksum mismatch', move, self)
-
-                if move.promoted is None:
-                    move.promoted = promoted
-                elif move.promoted != promoted:
-                    raise Fiend.MoveError('Promoted value mismatch', move, self)
 
                 # Move was successful, make working board the real board
                 self.board = workingBoard
