@@ -426,6 +426,7 @@ class Fiend(object):
             wordPoints = 0
             wordsPlayed = []
             passedTurn = False
+            promoted = 0
 
             if move.fromX > 14:
                 # Out of bounds fromX is used to signify a pass or letter exchange
@@ -444,6 +445,8 @@ class Fiend(object):
 
                 if move.fromX == move.toX and move.fromY == move.toY:
                     # Special case for one letter plays
+                    promoted = 3
+
                     try:
                         above = workingBoard[move.fromX][move.toY+1]
                     except IndexError:
@@ -464,10 +467,16 @@ class Fiend(object):
                     direction = 'H'
 
                 if direction == 'V':
+                    if not promoted:
+                        promoted = 2
+
                     moveCoords = [(move.fromX, y) for y in range(move.fromY, move.toY+1)]
                     extendCoordsLeft = [(move.fromX, j) for j in range(move.fromY - 1, -1, -1)]
                     extendCoordsRight = [(move.toX, j) for j in range(move.toY + 1, 15)]
                 elif direction == 'H':
+                    if not promoted:
+                        promoted = 1
+
                     moveCoords = [(x, move.fromY) for x in range(move.fromX, move.toX+1)]
                     extendCoordsLeft = [(j, move.fromY) for j in range(move.fromX -1, -1, -1)]
                     extendCoordsRight = [(j, move.toY) for j in range(move.toX + 1, 15)]
@@ -608,6 +617,11 @@ class Fiend(object):
                     move.boardChecksum = workingBoardChecksum
                 elif move.boardChecksum != 0 and move.boardChecksum != workingBoardChecksum:
                     raise Fiend.MoveError('Board checksum mismatch', move, self)
+
+                if move.promoted is None:
+                    move.promoted = promoted
+                elif move.promoted != promoted:
+                    raise Fiend.MoveError('Promoted value mismatch', move, self)
 
                 # Move was successful, make working board the real board
                 self.board = workingBoard
