@@ -433,7 +433,7 @@ class Fiend(object):
 
                 # Either a player won or the game ended due to someone not taking their
                 # turn in a given amount of time.
-                if 97 <= move.fromX <= 100:
+                if GAME_OVER_BY_DECLINE <= move.fromX <= GAME_OVER_BY_WIN:
                     self.gameOver = move.fromX
 
             else:
