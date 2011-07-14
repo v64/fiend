@@ -26,6 +26,7 @@ import mersenne
 USER_AGENT = 'WordsWithFriendsAndroid/3.51'
 DEVICE_OS = '2.3.3'
 DEVICE_ID = 'ADR6300'
+PLATFORM = 'android'
 
 # Main URL for all server requests.
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
@@ -756,6 +757,28 @@ class Fiend(object):
 
             if self._text:
                 self._setBlanks()
+
+        @property
+        def moveXml(self):
+            moveXml = ''
+
+            if len(self.words) > 0:
+                moveXml += '<?xml version="1.0" encoding="UTF-8"?>\n'
+                moveXml += '<move>\n'
+                moveXml += '    <from_x>' + str(self.fromX) + '</from_x>\n'
+                moveXml += '    <from_y>' + str(self.fromY) + '</from_y>\n'
+                moveXml += '    <to_x>' + str(self.toX) + '</to_x>\n'
+                moveXml += '    <to_y>' + str(self.toY) + '</to_y>\n'
+                moveXml += '    <promoted>' + str(self.promoted) + '</promoted>\n'
+                moveXml += '    <text>' + '</text>\n'
+                moveXml += '    <game_id>' + str(self.gameId) + '</game_id>\n'
+                moveXml += '    <primary_key>' + '</primary_key>\n'
+                moveXml += '    <board_checksum>' + str(self.boardChecksum) + '</board_checksum>\n'
+                moveXml += '    <move_index>' + str(self.moveIndex) + '</move_index>\n'
+                moveXml += '</move>\n'
+                moveXml += '&words=' + self.words[0].lower() + '&points=' + str(self.score) + '&platform=' + PLATFORM
+
+            return moveXml
 
         @property
         def textCodes(self):
