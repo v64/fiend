@@ -240,14 +240,6 @@ class Fiend(object):
             self._processMoves(xmlElem.find('moves'))
 
         @property
-        def letterBag(self):
-            '''
-            A list of letters not yet used in the game.
-            '''
-
-            return [LETTER_MAP[code] for code in self.letterBagCodes]
-
-        @property
         def boardString(self):
             '''
             Returns a 15x15 text grid of the game board.
@@ -732,7 +724,6 @@ class Fiend(object):
             self.words = []
             self.player = None
 
-            self._textWord = None
             self._textCodes = None
 
             self._text = None
@@ -764,6 +755,24 @@ class Fiend(object):
                 self._setBlanks()
 
         @property
+        def textCodes(self):
+            if self._textCodes is None:
+                self._textCodes = []
+
+                if self.text != '(null)':
+                    self._textCodes = []
+                    for code in self.text[:-1].split(','):
+                        if code == '*':
+                            self.textCodes.append('*')
+                        else:
+                            try:
+                                self._textCodes.append(int(code))
+                            except ValueError:
+                                continue
+
+            return self._textCodes
+
+        @property
         def moveXml(self):
             moveXml = ''
 
@@ -784,66 +793,6 @@ class Fiend(object):
                 moveXml += '&words=' + self.words[0].lower() + '&points=' + str(self.score) + '&platform=' + PLATFORM
 
             return moveXml
-
-        @property
-        def textCodes(self):
-            if self._textCodes is None:
-                self._textCodes = []
-
-                if self.text != '(null)':
-                    self._textCodes = []
-                    for code in self.text[:-1].split(','):
-                        if code == '*':
-                            self.textCodes.append('*')
-                        else:
-                            try:
-                                self._textCodes.append(int(code))
-                            except ValueError:
-                                continue
-
-            return self._textCodes
-
-        @property
-        def textWord(self):
-            '''
-            A Move's text field is either a comma separated series of numbers, asterisks,
-            and letters, or the string '(null)'.
-            
-            The numbers correspond to letters as mapped out in LETTER_MAP.
-            
-            The asterisks signify a letter that's already on the board that this move
-            overlaps.
-            
-            The letters signify that a blank has been played and that letter
-            has been selected as its value.
-
-            If the text field equals '(null)', then the turn was a pass.
-            '''
-
-            if self._textWord is None:
-                # This signifies the turn was a pass
-                if self.text == '(null)':
-                    return
-
-                word = ''
-                letterCodes = self.text[:-1].split(',')
-
-                for letterCode in letterCodes:
-                    if letterCode == '*':
-                        # A * indicates the intersection point of this word
-                        # and another word already on the board.
-                        word += '*'
-                    else:
-                        try:
-                            word += LETTER_MAP[int(letterCode)]
-                        except ValueError:
-                            # We have a letter, not a number, so this is
-                            # defining a blank.
-                            word += letterCode.upper()
-
-                self._textWord = word
-
-            return self._textWord
 
         def _setBlanks(self):
             letterCodes = self.text[:-1].split(',')
