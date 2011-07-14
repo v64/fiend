@@ -31,6 +31,7 @@ PLATFORM = 'android'
 # Main URL for all server requests.
 WWF_URL = 'https://wordswithfriends.zyngawithfriends.com/'
 
+GAME_OVER_BY_DECLINE = 97
 GAME_OVER_BY_NO_PLAY = 99
 GAME_OVER_BY_WIN = 100
 
@@ -430,13 +431,17 @@ class Fiend(object):
             promoted = 0
 
             if move.fromX > 14:
-                # Out of bounds fromX is used to signify a pass or letter exchange
+                # Out of bounds fromX is used to signify various game conditions:
+                # 97 = User declined new game
+                # 99 = User resigned game due to no play
+                # 100 = User won game
+                # 101 = Piece exchange
                 numLettersPlayed = len(move.textCodes)
                 passedTurn = True
 
                 # Either a player won or the game ended due to someone not taking their
                 # turn in a given amount of time.
-                if move.fromX == GAME_OVER_BY_NO_PLAY or move.fromX == GAME_OVER_BY_WIN:
+                if 97 <= move.fromX <= 100:
                     self.gameOver = move.fromX
 
             else:
