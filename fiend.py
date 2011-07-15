@@ -98,7 +98,7 @@ BONUS_SQUARES = [['-', '-', '-', '$', '-', '-', '!', '-', '!', '-', '-', '$', '-
                  ['-', '-', '-', '$', '-', '-', '!', '-', '!', '-', '-', '$', '-', '-', '-']]
 
 class Fiend(object):
-    def __init__(self, login, password, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID):
+    def __init__(self, login, password, userAgent=USER_AGENT, deviceOs=DEVICE_OS, deviceId=DEVICE_ID, platform=PLATFORM):
         '''
         Params:
             login - Your Words with Friends login email address.
@@ -113,6 +113,7 @@ class Fiend(object):
         self.userAgent = userAgent
         self.deviceOs = deviceOs
         self.deviceId = deviceId
+        self.platform = platform
 
         self.authorization = base64.b64encode(self.login + ':' + self.password) 
 
@@ -169,6 +170,7 @@ class Fiend(object):
             gameObj = Fiend.Game()
             gameObj.setWithXml(gameXml)
             
+            gameObj.parent = self
             self._games[gameObj.id] = gameObj
 
     def _serverGet(self, call, params):
@@ -196,6 +198,7 @@ class Fiend(object):
     class Game(object):
         def __init__(self):
             self.id = None
+            self.parent = None
             self.currentMoveUserId = None
             self.createdByUserId = None
             self.chatSessionId = None
@@ -790,7 +793,7 @@ class Fiend(object):
                 moveXml += '    <board_checksum>' + str(self.boardChecksum) + '</board_checksum>\n'
                 moveXml += '    <move_index>' + str(self.moveIndex) + '</move_index>\n'
                 moveXml += '</move>\n'
-                moveXml += '&words=' + self.words[0].lower() + '&points=' + str(self.score) + '&platform=' + PLATFORM
+                moveXml += '&words=' + self.words[0].lower() + '&points=' + str(self.score) + '&platform=' + self.game.parent.platform
 
             return moveXml
 
