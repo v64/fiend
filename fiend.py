@@ -487,8 +487,8 @@ class Fiend(object):
                 elif move.promoted != promoted:
                     raise Fiend.MoveError('Promoted value mismatch', move, self)
 
-                scoreMultiplier = 1
                 discoveredPoints = 0
+                scoreMultiplier = 1
                 mainWord = ''
 
                 for i, (x,y) in enumerate(moveCoords):
@@ -517,23 +517,20 @@ class Fiend(object):
                     workingBoard[x][y] = move.textCodes[i]
                     numLettersPlayed += 1
 
+                    letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]]
                     if BONUS_SQUARES[x][y] == DOUBLE_LETTER:
-                        letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 2
+                        letterValue *= 2
                     elif BONUS_SQUARES[x][y] == TRIPLE_LETTER:
-                        letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]] * 3
-                    else:
-                        letterValue = LETTER_VALUES[LETTER_MAP[move.textCodes[i]]]
-
+                        letterValue *= 3
                     wordPoints += letterValue
 
+                    multOnLetter = False
                     if BONUS_SQUARES[x][y] == DOUBLE_WORD:
                         scoreMultiplier *= 2
                         multOnLetter = True
                     elif BONUS_SQUARES[x][y] == TRIPLE_WORD:
                         scoreMultiplier *= 3
                         multOnLetter = True
-                    else:
-                        multOnLetter = False
 
                     if direction == 'V':
                         checkCoordsLeft = [(j, y) for j in range(x-1, -1, -1)]
@@ -544,7 +541,6 @@ class Fiend(object):
 
                     countedLetter = False
                     onCheckCoordsLeft = True
-
                     if move.textCodes[i] == 0 or move.textCodes[i] == 1:
                         auxWord = move._blanks[move.textCodes[i]]
                     else:
@@ -586,7 +582,6 @@ class Fiend(object):
                         wordsPlayed.append(auxWord)
 
                 onExtendCoordsLeft = True
-
                 for coords in [extendCoordsLeft, extendCoordsRight]:
                     for (j,k) in coords:
                         if workingBoard[j][k] == -1:
