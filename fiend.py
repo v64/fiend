@@ -656,7 +656,7 @@ class Fiend(object):
         def _calculateBoardChecksum(self, board=None):
             '''
             Calculates the board_checksum value for the board in its current state.
-            Since addMove() calls this, you shouldn't need to call it yourself and
+            Since _updateBoard() calls this, you shouldn't need to call it yourself and
             can just rely on game.boardChecksum.
 
             If anyone recognizes this as a known algorithm, let me know.
@@ -665,30 +665,33 @@ class Fiend(object):
             if board is None:
                 board = self.board
 
-            i = 0
-            j = 0
-            k = 225
+            checkSum = 0
+            numTilesPlayed = 0
 
             for y in range(15):
                 for x in range(15):
+
+                    # Space doesn't have a tile on it
                     if board[x][y] == -1:
-                        i ^= 1
-                        k -= 1
+                        checkSum ^= 1
+
+                    # Space has the first blank on it
                     elif board[x][y] == 0:
-                        i ^= (2 ** j)
+                        checkSum ^= 2 ** ((15 * y + x) % 32)
+                        numTilesPlayed += 1
+
+                    # Space has the second blank or some other letter on it
                     else:
-                        i ^= board[x][y]
+                        checkSum ^= board[x][y]
+                        numTilesPlayed += 1
 
-                    j += 1
-                    if j == 32:
-                        j = 0
+            if numTilesPlayed % 2 == 1:
+                checkSum = -checkSum
 
-            if k % 2 != 0:
-                i = -i
-                if (i ^ 2) % 2 == 0:
-                    i -= 2
+                if (checkSum ^ 2) % 2 == 0:
+                    checkSum -= 2
 
-            return i
+            return checkSum
 
     class User(object):
         def __init__(self):
