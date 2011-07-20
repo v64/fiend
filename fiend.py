@@ -611,7 +611,7 @@ class Fiend(object):
                     else:
                         onExtendCoordsLeft = False
 
-                if mainWord != '':
+                if mainWord:
                     # Put the main word at the front of the array
                     wordsPlayed.insert(0, mainWord)
 
