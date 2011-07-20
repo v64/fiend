@@ -115,6 +115,8 @@ class Fiend(object):
         self.deviceId = deviceId
         self.platform = platform
 
+        self.userId = None
+
         self.authorization = base64.b64encode(self.login + ':' + self.password) 
 
         self._http = httplib2.Http();
@@ -168,9 +170,9 @@ class Fiend(object):
 
         for gameXml in gamesXml:
             gameObj = Fiend.Game()
+            gameObj.parent = self
             gameObj.setWithXml(gameXml)
             
-            gameObj.parent = self
             self._games[gameObj.id] = gameObj
 
     def _serverGet(self, call, params):
@@ -219,6 +221,7 @@ class Fiend(object):
             self.board = self._initBoard()
             self.creator = Fiend.User()
             self.opponent = Fiend.User()
+            self.player = None
             self.moves = []
             self.gameOver = False
 
@@ -238,6 +241,10 @@ class Fiend(object):
             self.clientVersion = str(xmlElem.findtext('client-version'))
             self.observers = str(xmlElem.findtext('observers'))
             self.createdAt = str(xmlElem.findtext('created-at'))
+
+            if self.parent.userId is None and xmlElem.find('current-user') is not None:
+                currentUserXmlElem = xmlElem.find('current-user')
+                self.parent.userId = int(currentUserXmlElem.findtext('id'))
 
             self._processUsers(xmlElem.find('users'))
             self._processMoves(xmlElem.find('moves'))
@@ -395,12 +402,13 @@ class Fiend(object):
                 userObj.setWithXml(userXml)
 
                 if userObj.id == self.createdByUserId:
-                    userObj.creator = True
                     userObj.rack = self.creator.rack
                     self.creator = userObj
                 else:
                     userObj.rack = self.opponent.rack
                     self.opponent = userObj
+
+                self.player = self.creator if self.creator.id == self.parent.userId else self.opponent
 
         def _processMoves(self, movesXml):
             moveList = []
@@ -692,7 +700,6 @@ class Fiend(object):
         def __init__(self):
             self.id = None
             self.name = None
-            self.creator = False
 
             self.rack = None
             self.score = 0
