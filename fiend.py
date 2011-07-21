@@ -116,6 +116,8 @@ class Fiend(object):
         self.platform = platform
 
         self.userId = None
+        self.userName = None
+        self.userEmail = None
 
         self.authorization = base64.b64encode(self.login + ':' + self.password) 
 
@@ -245,6 +247,8 @@ class Fiend(object):
             if self.parent.userId is None and xmlElem.find('current-user') is not None:
                 currentUserXmlElem = xmlElem.find('current-user')
                 self.parent.userId = int(currentUserXmlElem.findtext('id'))
+                self.parent.userName = str(currentUserXmlElem.findtext('name'))
+                self.parent.userEmail = str(currentUserXmlElem.findtext('email'))
 
             self._processUsers(xmlElem.find('users'))
             self._processMoves(xmlElem.find('moves'))
