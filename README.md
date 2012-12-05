@@ -1,7 +1,7 @@
 # Fiend
 #### A Python module for accessing Zynga's [Words with Friends](https://market.android.com/details?id=com.zynga.words)
 
-Author: Jahn Veach &lt;v64@v64.net&gt;  
+Author: Jahn Veach &lt;j@hnvea.ch&gt;  
 License: GPLv3  
 Website: https://github.com/v64/fiend  
 
