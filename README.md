@@ -13,6 +13,9 @@ Obviously, there are a number of ways this module could be used to facilitate ch
 ### Caveat coder
 This project is still young and not stable at all. None of the public methods or variables are set in stone, especially not anything starting with an underscore.
 
+### Blog post by Scott Contini
+[Scott Contini](https://littlemaninmyhead.wordpress.com/about/), a security researcher, wrote [a detailed blog post](https://littlemaninmyhead.wordpress.com/2016/04/09/words-with-friends-trusts-the-clients-a-little-too-much/) in 2016 examining the Words with Friends protocol. Fiend played a role in allowing him to interact with the Words with Friends server in an unrestricted way, demonstrating its usefulness as a debugging tool.
+
 ### Acknowledgements
 I thank the authors of the following tools, which were invaluable in helping me write Fiend.
 
