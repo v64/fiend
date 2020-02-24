@@ -23,7 +23,7 @@ I thank the authors of the following tools, which were invaluable in helping me 
 * JD-GUI: https://github.com/java-decompiler/jd-gui
 * apktool: https://github.com/iBotPeaches/Apktool
 * smali: https://github.com/JesusFreke/smali
-* SQLite Database Browser: https://sqlitebrowser.org/
+* SQLite Database Browser: https://github.com/sqlitebrowser/sqlitebrowser
 * Shark for Root: https://play.google.com/store/apps/details?id=lv.n3o.shark
     * Android WireShark for packet sniffing, appears to be abandonware
 * unrevoked: http://unrevoked.com/
