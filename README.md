@@ -21,9 +21,9 @@ I thank the authors of the following tools, which were invaluable in helping me 
 
 * dex2jar: https://github.com/pxb1988/dex2jar
 * JD-GUI: https://github.com/java-decompiler/jd-gui
-* apktool: https://github.com/iBotPeaches/Apktool
+* Apktool: https://github.com/iBotPeaches/Apktool
 * smali: https://github.com/JesusFreke/smali
-* SQLite Database Browser: https://github.com/sqlitebrowser/sqlitebrowser
+* DB Browser for SQLite: https://github.com/sqlitebrowser/sqlitebrowser
 * Shark for Root: https://play.google.com/store/apps/details?id=lv.n3o.shark
     * Android WireShark for packet sniffing, appears to be abandonware
 * unrevoked: http://unrevoked.com/
