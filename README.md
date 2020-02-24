@@ -26,7 +26,7 @@ I thank the authors of the following tools, which were invaluable in helping me 
 * DB Browser for SQLite: https://github.com/sqlitebrowser/sqlitebrowser
 * Shark for Root: https://play.google.com/store/apps/details?id=lv.n3o.shark
     * Android WireShark for packet sniffing, appears to be abandonware
-* unrevoked: http://unrevoked.com/
+* unrevoked: https://unrevoked.com/
    * For rooting the Droid Incredible I used for this
 
 I also thank the Android development team for releasing a fine set of access and debugging tools for their platform.
