@@ -19,13 +19,15 @@ This project is still young and not stable at all. None of the public methods or
 ### Acknowledgements
 I thank the authors of the following tools, which were invaluable in helping me write Fiend.
 
-* dex2jar: http://code.google.com/p/dex2jar/
-* JD-GUI: http://java.decompiler.free.fr/?q=jdgui 
-* apktool: http://code.google.com/p/android-apktool/
-* smali: http://code.google.com/p/smali/
-* Shark for Root: https://market.android.com/details?id=lv.n3o.shark&feature=search\_result
-* SQLite Database Browser: http://sqlitebrowser.sourceforge.net/
+* dex2jar: https://github.com/pxb1988/dex2jar
+* JD-GUI: https://github.com/java-decompiler/jd-gui
+* apktool: https://github.com/iBotPeaches/Apktool
+* smali: https://github.com/JesusFreke/smali
+* SQLite Database Browser: https://sqlitebrowser.org/
+* Shark for Root: https://play.google.com/store/apps/details?id=lv.n3o.shark
+    * Android WireShark for packet sniffing, appears to be abandonware
 * unrevoked: http://unrevoked.com/
+   * For rooting the Droid Incredible I used to do this
 
 I also thank the Android development team for releasing a fine set of access and debugging tools for their platform.
 
