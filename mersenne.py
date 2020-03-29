@@ -1,9 +1,6 @@
 # Fiend - A Python module for accessing Zynga's Words with Friends
 # Copyright (C) 2011 Jahn Veach <j@hnvea.ch>
 #
-# This file is originally based on work by Sean Perry <shalehperry@attbi.com>.
-# Source: https://mail.python.org/pipermail/python-list/2002-October/160915.html
-#
 # MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +23,9 @@
 
 # This is a pure Python implementation of the Mersenne Twister,
 # which Words with Friends uses as its random number generator.
+#
+# Based on work by Sean Perry <shalehperry@attbi.com>
+# Source: https://mail.python.org/pipermail/python-list/2002-October/160915.html
 #
 # Mersenne Twister reference: http://en.wikipedia.org/wiki/Mersenne_twister
 
